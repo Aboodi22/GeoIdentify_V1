@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Introuvable{% endblock %}
+{% block content %}
+<main class="wrap detail-wrap">
+    <h1>Élément introuvable</h1>
+    <p class="lead">Cet élément n'existe pas dans la base de données.</p>
+    <div class="cta-row"><a class="btn primary" href="{{ url_for('home') }}">Retour à l'accueil</a></div>
+</main>
+{% endblock %}

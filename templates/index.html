@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<main>
+    <section class="hero">
+        <div class="wrap hero-grid">
+            <div>
+                <h1>Identifiez ce que vous tenez dans la main.</h1>
+                <p class="lead">Choisissez votre objectif et le nombre de questions. GeoIdentify sélectionne les observations les plus discriminantes, classe les candidats et montre ce qui concorde ou contredit.</p>
+            </div>
+            <svg class="crystals" viewBox="0 0 320 300" aria-hidden="true">
+                <polygon points="60,130 100,96 100,250 60,282" fill="#0a5945"/>
+                <polygon points="100,96 140,130 140,282 100,250" fill="#0d6f57"/>
+                <polygon points="60,130 100,96 140,130 100,158" fill="#7fcfb5"/>
+                <polygon points="150,40 200,0 200,232 150,280" fill="#0d6f57"/>
+                <polygon points="200,0 250,40 250,280 200,232" fill="#148f70"/>
+                <polygon points="150,40 200,0 250,40 200,72" fill="#a9e3cf"/>
+                <polygon points="250,150 280,124 280,262 250,286" fill="#0a5945"/>
+                <polygon points="280,124 310,150 310,286 280,262" fill="#0d6f57"/>
+                <polygon points="250,150 280,124 310,150 310,172" fill="#7fcfb5"/>
+                <rect x="20" y="284" width="290" height="6" rx="3" fill="#c5cdc7"/>
+            </svg>
+        </div>
+    </section>
+
+    <section class="wrap choices" aria-label="Que voulez-vous identifier ?">
+        <a class="choice" href="{{ url_for('mineral_form') }}">
+            <h2>Un minéral</h2>
+            <p>Couleur, éclat, dureté, trace, clivage, magnétisme, réaction à l'acide.</p>
+            <span class="choice-meta"><b>{{ mineral_count }}</b> minéraux en base</span>
+            <span class="choice-cta">Commencer</span>
+        </a>
+        <a class="choice" href="{{ url_for('rock_form') }}">
+            <h2>Une roche</h2>
+            <p>Texture, teinte, minéral principal, couches, foliation, fossiles.</p>
+            <span class="choice-meta"><b>{{ rock_count }}</b> roches en base</span>
+            <span class="choice-cta">Commencer</span>
+        </a>
+    </section>
+
+    <section class="wrap how" aria-label="Comment ça marche">
+        <ol>
+            <li><h3>Observez</h3><p>Chaque question explique ce qu'il faut observer. Les tests chimiques sont réservés à un cadre supervisé.</p></li>
+            <li><h3>Répondez d'un clic</h3><p>Un doute ? « Je ne sais pas » passe la question sans fausser le résultat.</p></li>
+            <li><h3>Comparez</h3><p>Le meilleur candidat, ses concordances, ses contradictions et les différences avec le suivant.</p></li>
+        </ol>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}GeoIdentify{% endblock %} — GeoIdentify</title>
+    <meta name="description" content="GeoIdentify — identification éducative de minéraux et de roches.">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <script>document.documentElement.classList.add('js');</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+    <div class="wrap bar">
+        <a class="brand" href="{{ url_for('home') }}" aria-label="GeoIdentify — accueil">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <polygon points="12,2 20,8 20,17 12,22 4,17 4,8" fill="#0d6f57"/>
+                <polygon points="12,2 20,8 12,12 4,8" fill="#7fcfb5"/>
+                <polygon points="12,12 20,8 20,17 12,22" fill="#0a5945"/>
+            </svg>
+            <span>GeoIdentify</span>
+        </a>
+        <nav aria-label="Navigation principale">
+            <a href="{{ url_for('mineral_form') }}" class="{% if kind|default('') == 'minerals' %}is-active{% endif %}">Minéraux</a>
+            <a href="{{ url_for('rock_form') }}" class="{% if kind|default('') == 'rocks' %}is-active{% endif %}">Roches</a>
+        </nav>
+    </div>
+</header>
+
+{% block content %}{% endblock %}
+
+<footer class="footer">
+    <div class="wrap">
+        <p><strong>Estimation éducative.</strong> Une identification certaine peut demander une analyse en laboratoire.</p>
+        <p>Sécurité : ne goûtez pas les échantillons, n'inhalez pas les poussières et faites réaliser les tests chimiques par un professionnel ou sous supervision qualifiée.</p>
+        <div class="footer-bottom">
+            <span>All rights reserved to Abderrazak Bounsif.</span>
+            <a class="email-link" href="mailto:abdell55rt@gmail.com" aria-label="Envoyer un email à Abderrazak Bounsif" title="Envoyer un email">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3.5 5.5h17A1.5 1.5 0 0 1 22 7v10a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 17V7a1.5 1.5 0 0 1 1.5-1.5Zm0 1.5L12 13l8.5-6M3 17l6-5m12 5-6-5"/>
+                </svg>
+                <span>abdell55rt@gmail.com</span>
+            </a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

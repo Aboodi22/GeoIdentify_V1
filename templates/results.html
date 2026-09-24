@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Résultat{% endblock %}
+{% block content %}
+<main class="wrap results">
+    <a class="back" href="{{ restart_url }}">Nouvelle identification</a>
+
+    <section class="verdict level-{{ outcome.level }}">
+        <div class="verdict-main">
+            <p class="verdict-label">{{ outcome.verdict }}</p>
+            <h1>{{ outcome.best.candidate.name }}</h1>
+            <p class="tag">{{ outcome.best.candidate.category }}</p>
+            <p class="lead">{{ outcome.best.candidate.description }}</p>
+        </div>
+        <div class="confidence" aria-label="Confiance : {{ outcome.best.confidence }} pour cent">
+            <span class="confidence-value"><b>{{ outcome.best.confidence }}</b><small>%</small></span>
+            <span class="meter"><i style="width:{{ outcome.best.confidence }}%"></i></span>
+            <span class="confidence-note">{{ outcome.answeredCount }} questions renseignées sur {{ outcome.totalQuestions }}</span>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Vos observations face à {{ outcome.best.candidate.name }}</h2>
+        <table class="evidence">
+            <thead><tr><th>Propriété</th><th>Vous avez observé</th><th>Attendu</th><th>Verdict</th></tr></thead>
+            <tbody>
+            {% for c in outcome.best.checks %}
+            <tr class="st-{{ c.status }}">
+                <th scope="row" data-label="Propriété">{{ c.label }}</th>
+                <td data-label="Observé">{{ c.observed }}</td>
+                <td data-label="Attendu">{{ c.expected }}</td>
+                <td data-label="Verdict">
+                    {% if c.status == 'match' %}<span class="pill match">Concorde</span>
+                    {% elif c.status == 'partial' %}<span class="pill partial">Proche</span>
+                    {% elif c.status == 'mismatch' %}<span class="pill mismatch">Ne correspond pas</span>
+                    {% else %}<span class="pill skipped">Non renseigné</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel-row">
+        <div class="panel"><h2>Pour confirmer</h2><p>{{ outcome.best.candidate.confirmationTests }}</p></div>
+        <div class="panel caution"><h2>Sécurité</h2><p>{{ outcome.best.candidate.safetyWarning }}</p></div>
+    </section>
+
+    {% if outcome.differences %}
+    <section class="panel">
+        <h2>Pour départager {{ outcome.best.candidate.name }} et {{ outcome.second.candidate.name }}</h2>
+        <p class="help">Les deux candidats sont proches. Ces propriétés les séparent.</p>
+        <table class="evidence">
+            <thead><tr><th>Propriété</th><th>{{ outcome.best.candidate.name }}</th><th>{{ outcome.second.candidate.name }}</th><th>Votre réponse</th></tr></thead>
+            <tbody>
+            {% for d in outcome.differences %}
+            <tr>
+                <th scope="row" data-label="Propriété">{{ d.label }}</th>
+                <td data-label="Premier">{{ d.firstValue }}</td>
+                <td data-label="Second">{{ d.secondValue }}</td>
+                <td data-label="Votre réponse">
+                    {% if d.unanswered %}<span class="pill partial">À tester</span>{% else %}<span class="pill skipped">Déjà pris en compte</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    <div class="cta-row">
+        <a class="btn primary" href="{{ url_for('mineral_detail' if kind == 'minerals' else 'rock_detail', identifier=outcome.best.id) }}">Voir la fiche complète</a>
+    </div>
+
+    {% if outcome.others %}
+    <section>
+        <h2 class="section-title">Autres candidats</h2>
+        <div class="alt-grid">
+            {% for r in outcome.others %}
+            <article class="alt">
+                <div class="alt-head"><h3>{{ r.candidate.name }}</h3><span class="alt-score"><b>{{ r.confidence }}</b>%</span></div>
+                <span class="meter small"><i style="width:{{ r.confidence }}%"></i></span>
+                {% set matches = r.checks|selectattr('status','in',['match','partial'])|map(attribute='label')|list %}
+                {% set mismatches = r.checks|selectattr('status','equalto','mismatch')|map(attribute='label')|list %}
+                {% if matches %}<p class="alt-line"><span class="ok">Concorde :</span> {{ matches|join(', ') }}</p>{% endif %}
+                {% if mismatches %}<p class="alt-line"><span class="ko">Ne correspond pas :</span> {{ mismatches|join(', ') }}</p>{% endif %}
+                <a class="link" href="{{ url_for('mineral_detail' if kind == 'minerals' else 'rock_detail', identifier=r.id) }}">Voir la fiche</a>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</main>
+{% endblock %}

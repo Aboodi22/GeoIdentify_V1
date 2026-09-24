@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ rock.name }}{% endblock %}
+{% block content %}
+<main class="wrap detail-wrap">
+    <div class="back-row">
+        <a class="back" href="{{ url_for('rock_result') }}">Retour au résultat</a>
+        <a class="back" href="{{ url_for('rock_form') }}">Nouvelle identification</a>
+    </div>
+    <h1>{{ rock.name }}</h1>
+    <p class="tag">{{ rock.category }}</p>
+    <p class="lead">{{ rock.description }}</p>
+
+    <section class="panel-grid">
+        <div class="panel"><h2>Caractéristiques physiques</h2><p>{{ rock.physicalCharacteristics }}</p></div>
+        <div class="panel"><h2>Environnement de formation</h2><p>{{ rock.formationEnvironment }}</p></div>
+        <div class="panel"><h2>Utilisations</h2><p>{{ rock.commonUses }}</p></div>
+        <div class="panel"><h2>Tests de confirmation</h2><p>{{ rock.confirmationTests }}</p></div>
+        <div class="panel caution"><h2>Sécurité</h2><p>{{ rock.safetyWarning }}</p></div>
+    </section>
+
+    <section class="panel">
+        <h2>Propriétés d'identification</h2>
+        <table class="props"><tbody>
+            <tr><th scope="row">Texture</th><td>{{ labels_for('texture', rock.texture) }}</td></tr>
+            <tr><th scope="row">Teinte</th><td>{{ labels_for('dominantColor', rock.dominantColor) }}</td></tr>
+            <tr><th scope="row">Minéral principal</th><td>{{ labels_for('visibleMinerals', rock.visibleMinerals) }}</td></tr>
+            <tr><th scope="row">Cristaux visibles</th><td>{{ labels_for('visibleCrystals', rock.visibleCrystals) }}</td></tr>
+            <tr><th scope="row">Couches</th><td>{{ labels_for('layers', rock.layers) }}</td></tr>
+            <tr><th scope="row">Foliation</th><td>{{ labels_for('foliation', rock.foliation) }}</td></tr>
+            <tr><th scope="row">Fossiles</th><td>{{ labels_for('fossils', rock.fossils) }}</td></tr>
+            <tr><th scope="row">Réaction à l'acide</th><td>{{ labels_for('acidReaction', rock.acidReaction) }}</td></tr>
+        </tbody></table>
+        <p class="help">Quand plusieurs valeurs sont listées, la première est la plus typique.</p>
+    </section>
+</main>
+{% endblock %}

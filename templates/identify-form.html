@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<main class="wrap form-wrap">
+    <h1>{{ page_title }}</h1>
+    <p class="lead">{{ lead }}</p>{% if purpose_label %}<p class="progress-label">Objectif : <b>{{ purpose_label }}</b></p>{% endif %}
+
+    <form action="{{ form_action }}" method="post" class="wizard" data-wizard>
+        {% if error %}
+        <div class="alert" role="alert"><p>{{ error }}</p></div>
+        {% endif %}
+
+        <div class="progress" aria-label="Progression">
+            {% for q in questions %}
+            <button type="button" class="seg" data-goto="{{ loop.index0 }}" aria-label="Question {{ loop.index }}"></button>
+            {% endfor %}
+        </div>
+        <p class="progress-label" data-progress-label>Question <b data-current>1</b> sur <span>{{ questions|length }}</span></p>
+
+        {% for q in questions %}
+        <fieldset class="step" data-step="{{ loop.index0 }}">
+            <legend tabindex="-1">{{ q.title }}</legend>
+            <p class="help">{{ q.help }}</p>
+            <div class="options{% if q.visual %} is-visual{% endif %}">
+                {% for o in q.options %}
+                <input class="opt-input" id="{{ q.field }}-{{ loop.index }}" type="radio"
+                       name="{{ q.field }}" value="{{ o.value }}">
+                <label class="opt{% if o.value == 'unknown' %} is-unknown{% endif %}" for="{{ q.field }}-{{ loop.index }}">
+                    {% if o.swatch %}<span class="swatch" style="background:{{ o.swatch }}"></span>{% endif %}
+                    <span class="opt-text">
+                        <span class="opt-label">{{ o.label }}</span>
+                        {% if o.hint %}<span class="opt-hint">{{ o.hint }}</span>{% endif %}
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+        {% endfor %}
+
+        <section class="recap" data-recap hidden>
+            <h2>Vos observations</h2>
+            <p class="help">Un clic sur « Modifier » pour corriger une réponse.</p>
+            <ul class="recap-list" data-recap-list></ul>
+            <button class="btn primary" type="submit">{{ submit_label }}</button>
+        </section>
+
+        <div class="wizard-nav">
+            <button type="button" class="btn ghost" data-back hidden>Question précédente</button>
+        </div>
+
+        <div class="fallback-submit">
+            <button class="btn primary" type="submit">{{ submit_label }}</button>
+        </div>
+    </form>
+</main>
+<script src="{{ url_for('static', filename='js/wizard.js') }}"></script>
+{% endblock %}

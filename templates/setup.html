@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Préparer l'identification{% endblock %}
+{% block content %}
+<main class="wrap form-wrap">
+    <h1>Préparer l'identification</h1>
+    <p class="lead">Choisissez l'objectif de votre recherche et le niveau de détail. GeoIdentify sélectionnera localement les questions les plus utiles.</p>
+    {% if error %}<div class="alert" role="alert"><p>{{ error }}</p></div>{% endif %}
+
+    <form method="post" class="setup-grid">
+        <section class="setup-section">
+            <h2>Objectif de votre recherche</h2>
+            <div class="purpose-options">
+                {% for key, purpose in purposes.items() %}
+                <label class="purpose-card">
+                    <input type="radio" name="purpose" value="{{ key }}" {% if key == 'general' %}checked{% endif %}>
+                    <span><strong>{{ purpose.label }}</strong><small>
+                    {% if key == 'quick' %}Quelques questions pour obtenir rapidement des candidats.
+                    {% elif key == 'general' %}Identification équilibrée pour un échantillon courant.
+                    {% elif key == 'academic' %}Plus de propriétés pour un travail universitaire.
+                    {% elif key == 'field' %}Observations privilégiant ce qui est disponible sur le terrain.
+                    {% else %}Analyse plus détaillée avec davantage de propriétés observables.
+                    {% endif %}</small></span>
+                </label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="setup-section">
+            <h2>Combien de questions ?</h2>
+            <div class="count-options">
+                {% for n in [5,8,10,12,15,20] %}
+                <label class="count-card"><input type="radio" name="question_count" value="{{ n }}" {% if n == 8 %}checked{% endif %}><span>{{ n }}</span></label>
+                {% endfor %}
+            </div>
+            <p class="help">Le nombre sera automatiquement limité au maximum adapté à votre objectif. « Je ne sais pas » reste disponible pour chaque observation.</p>
+        </section>
+
+        <button class="btn primary setup-submit" type="submit">Commencer l'identification</button>
+    </form>
+</main>
+{% endblock %}
