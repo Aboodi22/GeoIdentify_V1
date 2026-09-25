@@ -1,4 +1,7 @@
 import os
+import re
+import unicodedata
+import difflib
 from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, session
 from data import MINERALS, ROCKS, QUESTION_CATALOG, expand_catalog
@@ -13,11 +16,13 @@ for _m in MINERALS:
     _m.setdefault("habitVisibility", "partly-defined")
     _m.setdefault("cleavageQuality", "none" if _m.get("cleavage") == "none" else "good")
     _m.setdefault("surfaceAlteration", "none")
+    _m.setdefault("varieties", [])
 for _r in ROCKS:
     _r.setdefault("matrix", "no" if _r.get("texture") in {"crystalline", "coarse-grained"} else "yes")
     _r.setdefault("cement", "none" if _r.get("rockType") in {"igneous", "metamorphic"} else "carbonate")
     _r.setdefault("fabric", "layered" if _r.get("layers") == "yes" else "aligned" if _r.get("foliation") == "yes" else "massive")
     _r.setdefault("weathering", "moderate")
+    _r.setdefault("varieties", [])
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "geoidentify-dev-secret-change-me")
@@ -166,6 +171,94 @@ def candidate_by_id(kind, candidate_id):
     return source[index] if 0 <= index < len(source) else None
 
 
+# ---------------------------------------------------------------------------
+# Search: name/variety lookup with accent- and typo-tolerant matching so a
+# user who misspells a name, drops accents, or looks for a variety (e.g. an
+# "albâtre" or a "rose des sables") still finds the right sheet.
+# ---------------------------------------------------------------------------
+NOUN_BY_KIND = {"minerals": "minéral", "rocks": "roche"}
+
+
+def normalize_text(value):
+    if not value:
+        return ""
+    value = unicodedata.normalize("NFKD", value)
+    value = "".join(ch for ch in value if not unicodedata.combining(ch))
+    value = value.lower().strip()
+    value = re.sub(r"[^a-z0-9\s]", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def _build_search_index():
+    index = []
+    for kind, source in (("minerals", MINERALS), ("rocks", ROCKS)):
+        for pos, item in enumerate(source, start=1):
+            index.append({
+                "kind": kind, "id": pos, "name": item["name"], "variety": None,
+                "category": item.get("category", ""), "norm": normalize_text(item["name"]),
+            })
+            for variety in item.get("varieties", []):
+                index.append({
+                    "kind": kind, "id": pos, "name": item["name"], "variety": variety["name"],
+                    "category": item.get("category", ""), "norm": normalize_text(variety["name"]),
+                })
+    return index
+
+
+SEARCH_INDEX = _build_search_index()
+# Deduplicated (label, url) pairs for the search bar's autocomplete suggestions.
+SEARCH_SUGGEST_LIST = sorted({
+    (entry["variety"] or entry["name"]) for entry in SEARCH_INDEX
+}, key=lambda s: normalize_text(s))
+
+
+def search_url_for(entry):
+    endpoint = "mineral_detail" if entry["kind"] == "minerals" else "rock_detail"
+    return url_for(endpoint, identifier=entry["id"])
+
+
+def search_catalog(raw_query, limit=25):
+    query = (raw_query or "").strip()
+    norm_query = normalize_text(query)
+    if not norm_query:
+        return {"query": query, "matches": [], "suggestions": []}
+
+    seen, matches = set(), []
+    for entry in SEARCH_INDEX:
+        if norm_query in entry["norm"] or entry["norm"] in norm_query:
+            key = (entry["kind"], entry["id"], entry["variety"])
+            if key in seen:
+                continue
+            seen.add(key)
+            matches.append(entry)
+    if matches:
+        matches.sort(key=lambda e: (0 if e["norm"].startswith(norm_query) else 1, len(e["norm"]), e["name"]))
+        for entry in matches:
+            entry["url"] = search_url_for(entry)
+        return {"query": query, "matches": matches[:limit], "suggestions": []}
+
+    # No direct or partial match: fall back to fuzzy "did you mean" suggestions
+    # so a misspelling or a name we don't carry still points somewhere useful.
+    by_norm = {}
+    for entry in SEARCH_INDEX:
+        by_norm.setdefault(entry["norm"], entry)
+    close = difflib.get_close_matches(norm_query, by_norm.keys(), n=5, cutoff=0.72)
+    if not close:
+        tokens = norm_query.split()
+        if tokens:
+            token_hits = []
+            for norm, entry in by_norm.items():
+                if any(difflib.SequenceMatcher(None, tok, norm).ratio() > 0.78 for tok in tokens):
+                    token_hits.append((norm, entry))
+            close = [n for n, _ in sorted(token_hits, key=lambda x: -difflib.SequenceMatcher(None, norm_query, x[0]).ratio())[:5]]
+    suggestions = []
+    for norm in close:
+        entry = dict(by_norm[norm])
+        entry["url"] = search_url_for(entry)
+        suggestions.append(entry)
+    return {"query": query, "matches": [], "suggestions": suggestions}
+
+
 def choose_questions(kind, purpose, count):
     """Select high-information observations locally, with a purpose-specific priority bias."""
     candidates = MINERALS if kind == "minerals" else ROCKS
@@ -252,7 +345,7 @@ def identify(kind, answers, selected_fields):
 
 @app.context_processor
 def inject_globals():
-    return {"label_for": label_for, "labels_for": labels_for}
+    return {"label_for": label_for, "labels_for": labels_for, "search_suggest_list": SEARCH_SUGGEST_LIST}
 
 
 def render_setup(kind, error=None):
@@ -285,6 +378,14 @@ def setup_and_form(kind):
 @app.get("/")
 def home():
     return render_template("index.html", mineral_count=len(MINERALS), rock_count=len(ROCKS))
+
+
+@app.get("/search")
+def search():
+    query = request.args.get("q", "")
+    result = search_catalog(query) if query.strip() else None
+    return render_template("search.html", query=query, result=result, noun_by_kind=NOUN_BY_KIND,
+                           suggest_list=SEARCH_SUGGEST_LIST)
 
 
 @app.route("/minerals/identify", methods=["GET", "POST"])

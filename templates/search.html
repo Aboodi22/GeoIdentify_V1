@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Recherche{% if query %} — {{ query }}{% endif %}{% endblock %}
+{% block content %}
+<main class="wrap search-page">
+    <h1>Rechercher un minéral ou une roche</h1>
+    {% if not result %}
+        <p class="search-summary">Tapez un nom (ex. « quartz », « gypse », « albâtre »…) dans la barre en haut de la page.</p>
+    {% elif result.matches %}
+        <p class="search-summary">{{ result.matches|length }} résultat{{ 's' if result.matches|length > 1 else '' }} pour « {{ result.query }} ».</p>
+        <div class="search-results">
+            {% for hit in result.matches %}
+            <a class="search-hit" href="{{ hit.url }}">
+                <span class="hit-main">
+                    {% if hit.variety %}
+                        <span class="hit-name">{{ hit.variety }}</span>
+                        <span class="hit-meta">Variété de {{ hit.name }} · {{ hit.category }}</span>
+                    {% else %}
+                        <span class="hit-name">{{ hit.name }}</span>
+                        <span class="hit-meta">{{ hit.category }}</span>
+                    {% endif %}
+                </span>
+                <span class="hit-kind">{{ noun_by_kind[hit.kind] }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    {% elif result.suggestions %}
+        <p class="search-summary">Aucun résultat exact pour « {{ result.query }} ». Vouliez-vous dire :</p>
+        <div class="search-results search-suggestions">
+            {% for hit in result.suggestions %}
+            <a class="search-hit" href="{{ hit.url }}">
+                <span class="hit-main">
+                    {% if hit.variety %}
+                        <span class="hit-name">{{ hit.variety }}</span>
+                        <span class="hit-meta">Variété de {{ hit.name }} · {{ hit.category }}</span>
+                    {% else %}
+                        <span class="hit-name">{{ hit.name }}</span>
+                        <span class="hit-meta">{{ hit.category }}</span>
+                    {% endif %}
+                </span>
+                <span class="hit-kind">{{ noun_by_kind[hit.kind] }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="search-summary">Aucun résultat pour « {{ result.query }} ».</p>
+        <div class="search-empty">
+            <p><strong>Ce nom ne fait pas encore partie de notre base locale.</strong></p>
+            <p class="help">GeoIdentify couvre les minéraux et roches les plus courants ainsi que leurs principales variétés, pas l'intégralité de la minéralogie. Vérifiez l'orthographe, essayez un nom plus général (le groupe plutôt que la variété exacte), ou lancez une identification par observation pour trouver le candidat le plus proche.</p>
+            <p class="help" style="margin-top:10px;">
+                <a href="{{ url_for('mineral_form') }}">Identifier un minéral</a> · <a href="{{ url_for('rock_form') }}">Identifier une roche</a>
+            </p>
+        </div>
+    {% endif %}
+</main>
+{% endblock %}

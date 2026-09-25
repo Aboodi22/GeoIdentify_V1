@@ -33,5 +33,20 @@
         </tbody></table>
         <p class="help">Quand plusieurs valeurs sont listées, la première est la plus typique.</p>
     </section>
+
+    {% if mineral.varieties %}
+    <section class="panel">
+        <h2>Variétés</h2>
+        <p class="help">{{ mineral.name }} regroupe plusieurs variétés reconnaissables par leur couleur, leur forme ou leur origine, mais partageant la même composition et les mêmes propriétés diagnostiques.</p>
+        <div class="varieties-grid">
+            {% for variety in mineral.varieties %}
+            <div class="variety-card">
+                <h3>{{ variety.name }}</h3>
+                <p>{{ variety.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 </main>
 {% endblock %}
