@@ -980,7 +980,7 @@ _EXTRA_MINERALS = [
     _mineral("Spodumene", "Silicate", "LiAlSi₂O₆", "white,green,pink", "vitreous", "white", "hard", "two-directions", "no", "none", "prismatic", "translucent", "medium"),
     _mineral("Beryl", "Silicate", "Be₃Al₂Si₆O₁₈", "green,blue,yellow", "vitreous", "white", "very-hard", "none", "no", "none", "prismatic", "transparent", "medium"),
     _mineral("Tourmaline", "Silicate", "complex borosilicate", "black,green,pink", "vitreous", "white", "very-hard", "none", "no", "none", "prismatic", "transparent", "medium"),
-    _mineral("Zircon", "Silicate", "ZrSiO₄", "brown,red,transparent", "adamantine", "white", "very-hard", "no", "none", "prismatic", "transparent", "heavy"),
+    _mineral("Zircon", "Silicate", "ZrSiO₄", "brown,red,transparent", "adamantine", "white", "very-hard", "none", "no", "none", "prismatic", "transparent", "heavy"),
     _mineral("Titanite", "Silicate", "CaTiSiO₅", "brown,green,yellow", "resinous", "white", "hard", "one-direction", "no", "none", "wedge", "transparent", "heavy"),
     _mineral("Topaz", "Silicate", "Al₂SiO₄(F,OH)₂", "transparent,white,yellow,blue", "vitreous", "white", "very-hard", "two-directions", "no", "none", "prismatic", "transparent", "heavy"),
     _mineral("Beryl (var. émeraude)", "Silicate", "Be₃Al₂Si₆O₁₈", "green", "vitreous", "white", "very-hard", "none", "no", "none", "prismatic", "transparent", "medium"),
@@ -1023,6 +1023,56 @@ _EXTRA_MINERALS = [
     _mineral("Graphite", "Élément natif", "C", "gray,black", "metallic", "black", "soft", "one-direction", "no", "none", "flaky,massive", "opaque", "light"),
 ]
 
+# Minerals of particular pedagogical importance in Morocco (Anti-Atlas mining
+# districts, taught in Moroccan geology curricula) — added on request.
+_MOROCCAN_MINERALS = [
+    _mineral("Vanadinite", "Vanadate", "Pb₅(VO₄)₃Cl", "red,orange,brown", "resinous", "white", "medium", "none", "no", "none", "prismatic,botryoidal", "translucent", "heavy"),
+    _mineral("Azurite", "Carbonate", "Cu₃(CO₃)₂(OH)₂", "blue", "vitreous", "blue", "medium", "one-direction", "no", "strong", "massive,botryoidal,prismatic", "translucent", "heavy"),
+    _mineral("Skutterudite", "Arséniure", "CoAs₃", "gray,white", "metallic", "black", "hard", "none", "no", "none", "cubic,massive,granular", "opaque", "heavy"),
+    _mineral("Erythrite", "Arséniate", "Co₃(AsO₄)₂·8H₂O", "pink,purple", "pearly", "pink", "soft", "one-direction", "no", "none", "flaky,massive", "translucent", "medium"),
+    _mineral("Pyrolusite", "Oxyde", "MnO₂", "black,gray", "metallic,dull", "black", "soft", "one-direction", "no", "none", "massive,botryoidal", "opaque", "heavy"),
+    _mineral("Argentite (acanthite)", "Sulfure", "Ag₂S", "gray,black", "metallic", "black", "soft", "none", "no", "none", "cubic,massive", "opaque", "heavy"),
+]
+_MOROCCAN_MINERAL_NOTES = {
+    "Vanadinite": (
+        "Vanadate de plomb formant de petits cristaux hexagonaux rouge-orangé, très recherchés des collectionneurs pour leur netteté.",
+        "Se forme dans la zone d'oxydation des gisements de plomb ; le district de Mibladen-Touissit (Maroc oriental) est mondialement réputé pour ses vanadinites de qualité muséale.",
+        "Contient du plomb : éviter tout contact prolongé et l'ingestion, se laver les mains après manipulation.",
+    ),
+    "Azurite": (
+        "Carbonate de cuivre bleu intense, souvent associé à la malachite verte dans la zone d'oxydation des gisements cuprifères.",
+        "Fréquente dans les gisements de cuivre du Maroc (Anti-Atlas : Bou Skour, région d'Imiter), en association étroite avec la malachite.",
+        None,
+    ),
+    "Skutterudite": (
+        "Arséniure de cobalt gris étain à éclat métallique, minéral clé du célèbre district cobaltifère de Bou Azzer.",
+        "Associé aux filons hydrothermaux du district de Bou Azzer (Anti-Atlas, Maroc), l'un des tout premiers producteurs mondiaux de minerai de cobalt.",
+        "Contient de l'arsenic : ne jamais broyer, chauffer ou inhaler la poussière ; se laver les mains après manipulation.",
+    ),
+    "Erythrite": (
+        "Arséniate de cobalt rose à violet, surnommé « fleur de cobalt », qui apparaît par altération superficielle des minerais de cobalt.",
+        "Produit d'altération des filons cobaltifères de Bou Azzer (Anti-Atlas, Maroc) ; sa couleur rose sert de guide de prospection pour le cobalt.",
+        "Contient de l'arsenic : éviter d'inhaler la poussière et de porter les mains à la bouche après manipulation.",
+    ),
+    "Pyrolusite": (
+        "Oxyde de manganèse noir mat qui tache les doigts, formant souvent des masses botryoïdales ou des dendrites.",
+        "Le Maroc est l'un des grands producteurs mondiaux de manganèse, avec notamment les gisements d'Imini et de Bou Arfa.",
+        "Éviter d'inhaler la poussière noire, qui tache et peut irriter les voies respiratoires.",
+    ),
+    "Argentite (acanthite)": (
+        "Sulfure d'argent gris plomb à noir, sectile (il se coupe comme du plomb au lieu de se casser) : principal minerai d'argent.",
+        "Minéral clé du district argentifère d'Imiter (Anti-Atlas, Maroc), l'une des plus importantes mines d'argent d'Afrique.",
+        None,
+    ),
+}
+for _mm in _MOROCCAN_MINERALS:
+    _desc, _env, _safety = _MOROCCAN_MINERAL_NOTES[_mm["name"]]
+    _mm["description"] = _desc
+    _mm["formationEnvironment"] = _env
+    if _safety:
+        _mm["safetyWarning"] = _safety
+_EXTRA_MINERALS += _MOROCCAN_MINERALS
+
 _EXTRA_ROCKS = [
     _rock("Syénite", "Roche magmatique", "coarse-grained", "light", "feldspar", "yes", "no", "no", "no", "none", "igneous", "coarse"),
     _rock("Monzonite", "Roche magmatique", "coarse-grained", "intermediate", "feldspar,biotite", "yes", "no", "no", "no", "none", "igneous", "coarse"),
@@ -1064,6 +1114,28 @@ _EXTRA_ROCKS = [
     _rock("Marbre dolomitique", "Roche métamorphique", "crystalline", "light", "dolomite,calcite", "yes", "no", "no", "no", "strong", "metamorphic", "medium"),
     _rock("Amphibolite foliée", "Roche métamorphique", "foliated", "dark", "amphibole,feldspar", "yes", "no", "yes", "no", "none", "metamorphic", "medium"),
 ]
+
+# Sedimentary rock associations central to Moroccan structural-geology courses
+# (Rif orogeny, Atlas foreland basins) — added on request.
+_MOROCCAN_ROCKS = [
+    _rock("Flysch", "Roche sédimentaire", "clastic", "intermediate", "clay", "no", "yes", "no", "rare", "none", "sedimentary", "fine"),
+    _rock("Molasse", "Roche sédimentaire", "clastic-coarse", "intermediate", "quartz", "no", "yes", "no", "rare", "weak", "sedimentary", "coarse"),
+]
+_MOROCCAN_ROCK_NOTES = {
+    "Flysch": (
+        "Alternance rythmique de bancs gréseux et de bancs argileux ou marneux, déposée par des courants de turbidité en contexte de bassin marin profond.",
+        "Très caractéristique des nappes externes de la chaîne du Rif (flyschs maghrébin et mauritanien), déposé dans le bassin profond qui précédait le plissement de la chaîne.",
+    ),
+    "Molasse": (
+        "Roche détritique continentale à peu marine, mêlant grès, conglomérats et marnes, déposée après le plissement d'une chaîne de montagnes.",
+        "Typique des bassins d'avant-pays post-orogéniques des Atlas marocains (Haut Atlas, Moyen Atlas), remplis par l'érosion de la chaîne en cours de formation.",
+    ),
+}
+for _mr in _MOROCCAN_ROCKS:
+    _desc, _env = _MOROCCAN_ROCK_NOTES[_mr["name"]]
+    _mr["description"] = _desc
+    _mr["formationEnvironment"] = _env
+_EXTRA_ROCKS += _MOROCCAN_ROCKS
 
 
 def expand_catalog(minerals, rocks):
@@ -1138,6 +1210,7 @@ _extend_choice("visibleMinerals", "rocks", [
     ("dolomite", "Dolomite"), ("halite", "Halite"), ("pyroxene", "Pyroxène"),
 ])
 _extend_choice("dominantColor", "rocks", [("green", "Verte")])
+_extend_choice("streak", "minerals", [("blue", "Bleue"), ("pink", "Rose")])
 
 # More non-destructive observation questions for the expanded questionnaire.
 _extend_choice("luster", "minerals", [("submetallic", "Submétallique")])
@@ -1169,3 +1242,145 @@ QUESTION_CATALOG["rocks"] += [
         ("low", "Faible", None, None), ("moderate", "Modérée", None, None), ("high", "Forte", None, None),
     ]),
 ]
+
+
+# ===========================================================================
+# Extension v4 : minéraux et roches supplémentaires
+# ===========================================================================
+_NEW_MINERALS = [
+    _mineral("Anhydrite", "Sulfate", "CaSO₄", "white,gray,blue", "vitreous,pearly", "white", "medium", "three-directions", "no", "none", "massive,tabular", "translucent", "medium"),
+    _mineral("Wollastonite", "Silicate", "CaSiO₃", "white,gray", "pearly,vitreous", "white", "medium", "two-directions", "no", "none", "fibrous,bladed", "translucent", "medium"),
+    _mineral("Zoïsite", "Silicate", "Ca₂Al₃(SiO₄)(Si₂O₇)O(OH)", "gray,green,pink,blue", "vitreous", "white", "hard", "one-direction", "no", "none", "prismatic", "translucent", "medium"),
+    _mineral("Scapolite", "Silicate", "(Na,Ca)₄Al₃₋₆Si₉₋₆O₂₄(Cl,CO₃,SO₄)", "white,gray,pink", "vitreous", "white", "hard", "two-directions", "no", "none", "prismatic", "translucent", "medium"),
+    _mineral("Néphéline", "Silicate", "(Na,K)AlSiO₄", "white,gray", "greasy", "white", "hard", "none", "no", "none", "massive,prismatic", "translucent", "medium"),
+    _mineral("Leucite", "Silicate", "KAlSi₂O₆", "white,gray", "vitreous", "white", "hard", "none", "no", "none", "other", "translucent", "medium"),
+    _mineral("Sodalite", "Silicate", "Na₈Al₆Si₆O₂₄Cl₂", "blue,white,gray", "vitreous", "white", "hard", "multiple-directions", "no", "none", "massive,other", "translucent", "medium"),
+    _mineral("Lazurite", "Silicate", "(Na,Ca)₈(AlSiO₄)₆(S,SO₄,Cl)₂", "blue", "vitreous", "blue", "medium,hard", "multiple-directions", "no", "none", "massive", "translucent", "medium"),
+    _mineral("Vésuvianite", "Silicate", "Ca₁₀Mg₂Al₄(SiO₄)₅(Si₂O₇)₂(OH)₄", "green,brown,yellow", "vitreous", "white", "hard", "none", "no", "none", "prismatic", "translucent", "medium"),
+    _mineral("Rhodonite", "Silicate", "(Mn,Fe,Mg,Ca)SiO₃", "pink,red", "vitreous", "white", "hard", "two-directions", "no", "none", "massive,tabular", "translucent", "heavy"),
+    _mineral("Jadéite", "Silicate", "NaAlSi₂O₆", "green,white", "vitreous,greasy", "white", "hard", "two-directions", "no", "none", "massive,fibrous", "translucent", "heavy"),
+    _mineral("Pyrophyllite", "Silicate", "Al₂Si₄O₁₀(OH)₂", "white,gray,green,yellow", "pearly,greasy", "white", "soft", "one-direction", "no", "none", "flaky,massive,fibrous", "translucent", "medium"),
+    _mineral("Phlogopite", "Silicate", "KMg₃(AlSi₃O₁₀)(F,OH)₂", "brown,yellow,green", "pearly", "white", "soft", "one-direction", "no", "none", "flaky", "translucent", "medium"),
+    _mineral("Lépidolite", "Silicate", "K(Li,Al)₃(Al,Si)₄O₁₀(F,OH)₂", "pink,purple,white,gray", "pearly", "white", "soft,medium", "one-direction", "no", "none", "flaky", "translucent", "medium"),
+    _mineral("Vermiculite", "Silicate", "(Mg,Fe,Al)₃(Al,Si)₄O₁₀(OH)₂·4H₂O", "brown,yellow,green", "pearly", "white", "soft", "one-direction", "no", "none", "flaky", "translucent", "light"),
+    _mineral("Glauconite", "Silicate", "(K,Na)(Fe,Al,Mg)₂(Si,Al)₄O₁₀(OH)₂", "green", "dull", "green", "soft", "one-direction", "no", "none", "granular,massive", "translucent", "medium"),
+    _mineral("Palygorskite", "Argile", "(Mg,Al)₂Si₄O₁₀(OH)·4H₂O", "white,gray,brown", "dull", "white", "soft", "none", "no", "none", "fibrous,massive", "translucent", "light", "earthy"),
+    _mineral("Sépiolite", "Argile", "Mg₄Si₆O₁₅(OH)₂·6H₂O", "white,gray,yellow", "dull", "white", "soft", "none", "no", "none", "massive,fibrous", "opaque", "light", "earthy"),
+    _mineral("Natrolite", "Zéolite", "Na₂Al₂Si₃O₁₀·2H₂O", "white,transparent", "vitreous", "white", "medium", "two-directions", "no", "none", "acicular,fibrous", "transparent", "light"),
+    _mineral("Stilbite", "Zéolite", "NaCa₄(Si₂₇Al₉)O₇₂·28H₂O", "white,pink,yellow", "pearly,vitreous", "white", "medium", "one-direction", "no", "none", "tabular", "translucent", "light"),
+    _mineral("Analcime", "Zéolite", "NaAlSi₂O₆·H₂O", "white,gray,pink", "vitreous", "white", "medium", "none", "no", "none", "granular,other", "transparent", "light"),
+    _mineral("Brucite", "Hydroxyde", "Mg(OH)₂", "white,green,gray", "pearly,vitreous", "white", "soft", "one-direction", "no", "weak", "flaky,fibrous", "translucent", "light"),
+    _mineral("Diaspore", "Hydroxyde", "AlO(OH)", "white,gray,yellow,brown", "vitreous,pearly", "white", "hard", "one-direction", "no", "none", "tabular,massive", "translucent", "medium"),
+    _mineral("Gibbsite", "Hydroxyde", "Al(OH)₃", "white,gray,green", "dull,pearly", "white", "soft", "one-direction", "no", "none", "massive,botryoidal", "translucent", "light", "earthy"),
+    _mineral("Magnésite", "Carbonate", "MgCO₃", "white,gray,yellow", "vitreous", "white", "medium", "three-directions", "no", "weak", "massive,rhombohedral,granular", "translucent", "medium"),
+    _mineral("Ankérite", "Carbonate", "Ca(Fe,Mg,Mn)(CO₃)₂", "white,gray,yellow,brown", "vitreous,pearly", "white", "medium", "three-directions", "no", "weak", "rhombohedral,massive", "translucent", "medium"),
+    _mineral("Strontianite", "Carbonate", "SrCO₃", "white,gray,green,yellow", "vitreous,greasy", "white", "medium", "two-directions", "no", "strong", "prismatic,acicular,massive", "translucent", "heavy"),
+    _mineral("Chrysocolle", "Silicate", "(Cu,Al)₂H₂Si₂O₅(OH)₄·nH₂O", "blue,green", "vitreous,dull", "green", "soft,medium", "none", "no", "none", "massive,botryoidal", "translucent", "medium", "conchoidal"),
+    _mineral("Hémimorphite", "Silicate", "Zn₄Si₂O₇(OH)₂·H₂O", "white,blue,green,gray", "vitreous", "white", "medium", "two-directions", "no", "none", "botryoidal,tabular,fibrous", "translucent", "medium"),
+    _mineral("Wulfénite", "Molybdate", "PbMoO₄", "yellow,red,other", "resinous,adamantine", "white", "medium", "multiple-directions", "no", "none", "tabular", "translucent", "heavy"),
+    _mineral("Pyromorphite", "Phosphate", "Pb₅(PO₄)₃Cl", "green,yellow,brown", "resinous", "white", "medium", "none", "no", "none", "prismatic,botryoidal", "translucent", "heavy"),
+    _mineral("Mimétite", "Arséniate", "Pb₅(AsO₄)₃Cl", "yellow,brown,white", "resinous", "white", "medium", "none", "no", "none", "prismatic,botryoidal", "translucent", "heavy"),
+    _mineral("Jarosite", "Sulfate", "KFe₃(SO₄)₂(OH)₆", "yellow,brown", "vitreous", "yellow", "medium", "one-direction", "no", "none", "granular,massive", "translucent", "medium"),
+    _mineral("Sylvite", "Halogénure", "KCl", "white,transparent,pink,red", "vitreous", "white", "soft", "three-directions", "no", "none", "cubic,granular,massive", "transparent", "light"),
+    _mineral("Carnallite", "Halogénure", "KMgCl₃·6H₂O", "white,pink,yellow", "greasy", "white", "soft", "none", "no", "none", "massive,granular", "translucent", "light"),
+    _mineral("Borax", "Borate", "Na₂B₄O₇·10H₂O", "white,transparent,gray", "vitreous,resinous", "white", "soft", "one-direction", "no", "none", "prismatic,massive", "transparent", "light"),
+    _mineral("Anatase", "Oxyde", "TiO₂", "brown,blue,yellow,black", "adamantine,submetallic", "white", "hard", "two-directions", "no", "none", "octahedral,tabular", "translucent", "heavy"),
+    _mineral("Uraninite", "Oxyde", "UO₂", "black,gray", "submetallic", "black", "hard", "none", "no", "none", "massive,botryoidal,cubic", "opaque", "heavy"),
+    _mineral("Wolframite", "Tungstate", "(Fe,Mn)WO₄", "black,brown", "submetallic", "brown", "medium", "one-direction", "no", "none", "bladed,prismatic", "opaque", "heavy"),
+    _mineral("Scheelite", "Tungstate", "CaWO₄", "white,yellow,brown", "vitreous,adamantine", "white", "medium", "multiple-directions", "no", "none", "other,granular", "translucent", "heavy"),
+    _mineral("Stibine", "Sulfure", "Sb₂S₃", "gray", "metallic", "black", "soft", "one-direction", "no", "none", "acicular,prismatic", "opaque", "heavy"),
+    _mineral("Arsénopyrite", "Sulfure", "FeAsS", "gray,white", "metallic", "black", "hard", "none", "no", "none", "prismatic,granular,massive", "opaque", "heavy"),
+    _mineral("Pentlandite", "Sulfure", "(Fe,Ni)₉S₈", "yellow,brown", "metallic", "brown", "medium", "none", "no", "none", "granular,massive", "opaque", "heavy"),
+    _mineral("Pyrrhotite", "Sulfure", "Fe₁₋ₓS", "brown,yellow", "metallic", "black", "medium", "none", "yes", "none", "massive,tabular", "opaque", "heavy", "uneven", "weak"),
+    _mineral("Marcassite", "Sulfure", "FeS₂", "yellow,gray", "metallic", "black", "hard", "none", "no", "none", "tabular,massive", "opaque", "heavy"),
+    _mineral("Chalcocite", "Sulfure", "Cu₂S", "gray,black", "metallic", "black", "soft,medium", "none", "no", "none", "massive,granular", "opaque", "heavy"),
+    _mineral("Cobaltite", "Sulfure", "CoAsS", "gray,white,pink", "metallic", "black", "hard", "one-direction", "no", "none", "cubic,granular,massive", "opaque", "heavy"),
+    _mineral("Nickeline", "Arséniure", "NiAs", "red,brown", "metallic", "brown", "hard", "none", "no", "none", "massive,botryoidal", "opaque", "heavy"),
+    _mineral("Or natif", "Élément natif", "Au", "yellow", "metallic", "yellow", "soft", "none", "no", "none", "other,massive", "opaque", "heavy"),
+    _mineral("Bismuth natif", "Élément natif", "Bi", "white,gray,pink", "metallic", "black", "soft", "one-direction", "no", "none", "massive,other", "opaque", "heavy"),
+    _mineral("Diamant", "Élément natif", "C", "transparent,white,yellow,brown,blue", "adamantine", "none", "very-hard", "multiple-directions", "no", "none", "octahedral", "transparent", "medium"),
+    _mineral("Opale", "Silice hydratée", "SiO₂·nH₂O", "white,transparent,other,blue,yellow", "vitreous,resinous", "white", "hard", "none", "no", "none", "massive,botryoidal", "translucent", "light", "conchoidal"),
+    _mineral("Calcédoine", "Silice", "SiO₂ (microfibreux)", "white,gray,blue,brown", "vitreous", "white", "very-hard", "none", "no", "none", "botryoidal,massive", "translucent", "medium", "conchoidal"),
+    _mineral("Turquoise", "Phosphate", "CuAl₆(PO₄)₄(OH)₈·4H₂O", "blue,green", "greasy", "white", "medium,hard", "none", "no", "none", "massive", "opaque", "medium"),
+]
+_NEW_MINERAL_NOTES = {
+    "Wulfénite": ("Molybdate de plomb en cristaux tabulaires jaune-orangé à rouge, très prisés des collectionneurs.",
+                  "Zone d'oxydation des gisements de plomb ; le Maroc (Mibladen, Touissit) est réputé pour ses wulfénites.",
+                  "Contient du plomb et du molybdène : se laver les mains après manipulation."),
+    "Mimétite": ("Arséniate de plomb jaune à brun en cristaux prismatiques ou botryoïdaux.",
+                 "Zone d'oxydation des gîtes plombifères, connue dans le Maroc oriental (Touissit, Mibladen).",
+                 "Contient du plomb et de l'arsenic : ne pas ingérer, se laver les mains."),
+    "Cobaltite": ("Sulfarséniure de cobalt gris argenté à reflets rosés.",
+                  "Associée aux minéralisations Co-Ni-As de Bou Azzer (Anti-Atlas), l'un des grands districts de cobalt.",
+                  "Contient de l'arsenic : éviter l'inhalation de poussières."),
+    "Nickeline": ("Arséniure de nickel rouge cuivré pâle, à trace brun-noir.",
+                  "Fait partie des minéralisations Co-Ni-As de Bou Azzer (Anti-Atlas).",
+                  "Contient de l'arsenic : éviter l'inhalation de poussières."),
+    "Uraninite": ("Oxyde d'uranium noir, principal minerai d'uranium.",
+                  "Gîtes hydrothermaux, pegmatites et grès uranifères.",
+                  "Radioactif : ne pas garder près de la peau, éviter les poussières, manipuler avec précaution."),
+    "Arsénopyrite": ("Sulfure de fer et d'arsenic gris argenté, souvent associé à l'or.",
+                     "Filons hydrothermaux et roches métamorphiques.",
+                     "Contient de l'arsenic : ne pas respirer les poussières, se laver les mains."),
+    "Diamant": ("Carbone cristallisé le plus dur des minéraux (dureté 10), à éclat adamantin.",
+                "Formé dans le manteau profond, ramené en surface par les kimberlites et lamproïtes.",
+                "Sans danger particulier ; attention aux éclats lors du polissage."),
+    "Palygorskite": ("Argile fibreuse magnésienne à aspect terreux.",
+                     "Se forme en milieux évaporitiques ou dans les sols calcaires en climat aride à semi-aride.",
+                     "Éviter l'inhalation des poussières fibreuses."),
+}
+for _nm in _NEW_MINERALS:
+    _note = _NEW_MINERAL_NOTES.get(_nm["name"])
+    if _note:
+        _nm["description"], _nm["formationEnvironment"], _nm["safetyWarning"] = _note
+_EXTRA_MINERALS += _NEW_MINERALS
+
+_NEW_ROCKS = [
+    _rock("Leucogranite", "Roche magmatique", "coarse-grained", "light", "quartz,feldspar,mica", "yes", "no", "no", "no", "none", "igneous", "coarse"),
+    _rock("Anorthosite", "Roche magmatique", "coarse-grained", "light", "feldspar", "yes", "no", "no", "no", "none", "igneous", "coarse"),
+    _rock("Dunite", "Roche magmatique", "coarse-grained", "dark", "olivine", "yes", "no", "no", "no", "none", "igneous", "coarse"),
+    _rock("Pyroxénite", "Roche magmatique", "coarse-grained", "dark", "pyroxene", "yes", "no", "no", "no", "none", "igneous", "coarse"),
+    _rock("Carbonatite", "Roche magmatique", "coarse-grained", "light", "calcite", "yes", "no", "no", "no", "strong", "igneous", "coarse"),
+    _rock("Dolérite (diabase)", "Roche magmatique", "fine-grained", "dark", "feldspar,pyroxene", "no", "no", "no", "no", "none", "igneous", "medium"),
+    _rock("Phonolite", "Roche magmatique", "porphyritic", "intermediate", "feldspar", "yes", "no", "no", "no", "none", "igneous", "fine"),
+    _rock("Lamprophyre", "Roche magmatique", "porphyritic", "dark", "mica,amphibole", "yes", "no", "no", "no", "none", "igneous", "fine"),
+    _rock("Basalte en coussins (pillow-lava)", "Roche volcanique", "fine-grained", "dark", "none", "no", "no", "no", "no", "none", "volcanic", "fine"),
+    _rock("Halitite (sel gemme)", "Roche sédimentaire", "crystalline", "light", "halite", "yes", "no", "no", "no", "none", "sedimentary", "medium"),
+    _rock("Roche gypseuse (gypsite)", "Roche sédimentaire", "crystalline", "light", "gypsum", "yes", "yes", "no", "no", "none", "sedimentary", "fine"),
+    _rock("Argile", "Roche sédimentaire", "clastic-fine", "intermediate", "clay", "no", "no", "no", "no", "none", "sedimentary", "very-fine"),
+    _rock("Lignite", "Roche sédimentaire organique", "fine-grained", "dark", "none", "no", "yes", "no", "no", "none", "sedimentary", "very-fine"),
+    _rock("Radiolarite", "Roche sédimentaire", "fine-grained", "dark", "quartz", "no", "yes", "no", "no", "none", "sedimentary", "very-fine"),
+    _rock("Formation ferrifère rubanée (BIF)", "Roche sédimentaire", "fine-grained", "dark", "quartz", "no", "yes", "no", "no", "none", "sedimentary", "fine"),
+    _rock("Bauxite", "Roche sédimentaire résiduelle", "fine-grained", "intermediate", "clay", "no", "no", "no", "no", "none", "sedimentary", "very-fine"),
+    _rock("Croûte calcaire (calcrète)", "Roche sédimentaire", "fine-grained", "light", "calcite", "no", "yes", "no", "no", "strong", "sedimentary", "fine"),
+    _rock("Tillite (diamictite)", "Roche sédimentaire", "clastic-coarse", "intermediate", "quartz", "no", "no", "no", "no", "none", "sedimentary", "coarse", "no", "poorly-sorted", "angular"),
+    _rock("Calcaire stromatolithique", "Roche sédimentaire", "fine-grained", "intermediate", "calcite", "no", "yes", "no", "yes", "strong", "sedimentary", "fine"),
+    _rock("Phyllade", "Roche métamorphique", "foliated", "dark", "mica", "no", "no", "yes", "no", "none", "metamorphic", "very-fine"),
+    _rock("Schiste bleu (glaucophanite)", "Roche métamorphique", "foliated", "dark", "amphibole", "no", "no", "yes", "no", "none", "metamorphic", "medium"),
+    _rock("Schiste vert (prasinite)", "Roche métamorphique", "foliated", "green", "amphibole", "no", "no", "yes", "no", "none", "metamorphic", "fine"),
+    _rock("Granulite", "Roche métamorphique", "crystalline", "intermediate", "feldspar,pyroxene", "yes", "no", "yes", "no", "none", "metamorphic", "coarse"),
+    _rock("Cipolin", "Roche métamorphique", "crystalline", "light", "calcite,mica", "yes", "no", "no", "no", "strong", "metamorphic", "medium"),
+    _rock("Stéatite (talcschiste)", "Roche métamorphique", "foliated", "green", "talc", "no", "no", "yes", "no", "none", "metamorphic", "fine"),
+    _rock("Gneiss œillé", "Roche métamorphique", "foliated", "light", "feldspar,quartz,mica", "yes", "no", "yes", "no", "none", "metamorphic", "coarse"),
+    _rock("Schiste graphiteux", "Roche métamorphique", "foliated", "dark", "graphite", "no", "no", "yes", "no", "none", "metamorphic", "very-fine"),
+    _rock("Greisen", "Roche hydrothermale", "coarse-grained", "light", "quartz,mica", "yes", "no", "no", "no", "none", "hydrothermal", "medium"),
+    _rock("Gossan (chapeau de fer)", "Roche d'altération hydrothermale", "fine-grained", "intermediate", "none", "no", "no", "no", "no", "none", "hydrothermal", "fine"),
+]
+_NEW_ROCK_NOTES = {
+    "Basalte en coussins (pillow-lava)": ("Basalte refroidi sous l'eau, formant des « coussins » arrondis à bordure vitreuse.",
+        "Typique des fonds océaniques ; visible dans les séquences ophiolitiques comme celle de Bou Azzer (Anti-Atlas)."),
+    "Calcaire stromatolithique": ("Calcaire lité formé par l'activité de tapis microbiens (stromatolithes).",
+        "Milieux marins peu profonds ; les stromatolithes du Précambrien terminal et du Cambrien sont connus dans l'Anti-Atlas."),
+    "Tillite (diamictite)": ("Roche d'origine glaciaire, mêlant blocs et galets anguleux dans une matrice fine.",
+        "Dépôts glaciaires ; des tillites de l'Ordovicien supérieur affleurent dans l'Anti-Atlas."),
+    "Croûte calcaire (calcrète)": ("Croûte carbonatée formée dans les sols par évaporation et précipitation de calcaire.",
+        "Climats arides à semi-arides, fréquente dans les plaines et piémonts du Maroc."),
+    "Greisen": ("Roche quartz-mica issue de l'altération hydrothermale d'un granite, souvent associée à l'étain et au tungstène.",
+        "Toit de granites différenciés ; associée aux minéralisations Sn-W."),
+}
+for _nr in _NEW_ROCKS:
+    _note = _NEW_ROCK_NOTES.get(_nr["name"])
+    if _note:
+        _nr["description"], _nr["formationEnvironment"] = _note
+_EXTRA_ROCKS += _NEW_ROCKS
+_extend_choice("visibleMinerals", "rocks", [("gypsum", "Gypse"), ("talc", "Talc"), ("graphite", "Graphite")])

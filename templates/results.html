@@ -68,7 +68,7 @@
     {% endif %}
 
     <div class="cta-row">
-        <a class="btn primary" href="{{ url_for('mineral_detail' if kind == 'minerals' else 'rock_detail', identifier=outcome.best.id) }}">Voir la fiche complète</a>
+        <a class="btn primary" href="{{ url_for({'minerals':'mineral_detail','rocks':'rock_detail','thin':'thin_detail'}[kind], identifier=outcome.best.id) }}">Voir la fiche complète</a>
     </div>
 
     {% if outcome.others %}
@@ -83,7 +83,7 @@
                 {% set mismatches = r.checks|selectattr('status','equalto','mismatch')|map(attribute='label')|list %}
                 {% if matches %}<p class="alt-line"><span class="ok">Concorde :</span> {{ matches|join(', ') }}</p>{% endif %}
                 {% if mismatches %}<p class="alt-line"><span class="ko">Ne correspond pas :</span> {{ mismatches|join(', ') }}</p>{% endif %}
-                <a class="link" href="{{ url_for('mineral_detail' if kind == 'minerals' else 'rock_detail', identifier=r.id) }}">Voir la fiche</a>
+                <a class="link" href="{{ url_for({'minerals':'mineral_detail','rocks':'rock_detail','thin':'thin_detail'}[kind], identifier=r.id) }}">Voir la fiche</a>
             </article>
             {% endfor %}
         </div>

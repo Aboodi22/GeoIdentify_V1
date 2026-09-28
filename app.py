@@ -5,6 +5,10 @@ import difflib
 from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, session
 from data import MINERALS, ROCKS, QUESTION_CATALOG, expand_catalog
+import thin_data
+from thin_data import THIN_MINERALS, THIN_QUESTIONS, THIN_SPECS, THIN_PRIORITY
+
+QUESTION_CATALOG["thin"] = THIN_QUESTIONS
 
 # Expand the reference catalog once at import time. All data remains local to Vercel.
 MINERALS, ROCKS = expand_catalog(MINERALS, ROCKS)
@@ -76,17 +80,11 @@ RELATED_LUSTER = {"pearly": {"greasy"}, "greasy": {"pearly"}}
 RELATED_COLOR = {"gray": {"black"}, "black": {"gray"}, "pink": {"red"}, "red": {"pink"}}
 
 PURPOSES = {
-    "quick": {"label": "Identification rapide", "default": 5, "max": 8,
-              "priority": ["hardness", "streak", "cleavage", "magnetic", "texture", "rockType", "foliation", "visibleMinerals"]},
-    "general": {"label": "Identification générale", "default": 8, "max": 12,
-                 "priority": ["hardness", "streak", "luster", "color", "cleavage", "texture", "visibleMinerals", "rockType", "foliation", "acidReaction"]},
-    "academic": {"label": "Étude universitaire", "default": 12, "max": 16,
-                  "priority": ["hardness", "streak", "cleavage", "crystalHabit", "transparency", "density", "texture", "visibleMinerals", "rockType", "grainSize", "foliation", "fossils"]},
-    "field": {"label": "Recherche / terrain", "default": 10, "max": 14,
-              "priority": ["color", "texture", "visibleMinerals", "visibleCrystals", "layers", "foliation", "grainSize", "rockType", "vesicles", "hardness"]},
-    "laboratory": {"label": "Recherche approfondie", "default": 15, "max": 20,
-                   "priority": ["hardness", "streak", "cleavage", "magnetic", "magneticStrength", "luster", "crystalHabit", "transparency", "density", "fracture", "texture", "visibleMinerals", "rockType", "grainSize", "vesicles", "sorting", "rounding", "matrix", "cement", "surface"]},
+    "academic": {"label": "Étude universitaire", "default": 12, "max": 20,
+                 "priority": ["hardness", "streak", "cleavage", "crystalHabit", "transparency", "density", "texture",
+                              "visibleMinerals", "rockType", "grainSize", "foliation", "fossils"]},
 }
+DEFAULT_PURPOSE = "academic"
 
 
 def split_csv(value):
@@ -108,15 +106,19 @@ def exact_factor(answer, expected, related=None):
     return 0.0
 
 
-def ordinal_factor(answer, expected):
+ORDINAL_LEVELS = {"hardness": HARDNESS_LEVELS, "relief": thin_data.RELIEF_LEVELS, "biref": thin_data.BIREF_LEVELS}
+
+
+def ordinal_factor(answer, expected, levels=None):
+    levels = levels or HARDNESS_LEVELS
     try:
-        a = HARDNESS_LEVELS.index(answer)
+        a = levels.index(answer)
     except ValueError:
         return 0.0
     distances = []
     for value in expected:
-        if value in HARDNESS_LEVELS:
-            distances.append(abs(a - HARDNESS_LEVELS.index(value)))
+        if value in levels:
+            distances.append(abs(a - levels.index(value)))
     if not distances:
         return 0.0
     best = min(distances)
@@ -124,6 +126,8 @@ def ordinal_factor(answer, expected):
 
 
 def matcher_factor(kind, answer, expected):
+    if "any" in expected: return 0.5  # caractère variable : ne tranche pas
+    if kind.startswith("ord:"): return ordinal_factor(answer, expected, ORDINAL_LEVELS[kind[4:]])
     if kind == "ordinal": return ordinal_factor(answer, expected)
     if kind == "exact_streak": return exact_factor(answer, expected, RELATED_STREAK)
     if kind == "exact_color": return exact_factor(answer, expected, RELATED_COLOR)
@@ -159,14 +163,22 @@ def build_questions(kind, selected_fields=None):
 
 
 LABELS = {}
-for q in QUESTION_CATALOG["minerals"] + QUESTION_CATALOG["rocks"]:
+for q in QUESTION_CATALOG["minerals"] + QUESTION_CATALOG["rocks"] + QUESTION_CATALOG["thin"]:
     LABELS.setdefault(q[0], {})
     for value, label, *_ in q[3]:
         LABELS[q[0]][value] = label
 
 
+def candidates_for(kind):
+    return {"minerals": MINERALS, "rocks": ROCKS, "thin": THIN_MINERALS}[kind]
+
+
+def specs_for(kind):
+    return {"minerals": MINERAL_SPECS, "rocks": ROCK_SPECS, "thin": THIN_SPECS}[kind]
+
+
 def candidate_by_id(kind, candidate_id):
-    source = MINERALS if kind == "minerals" else ROCKS
+    source = candidates_for(kind)
     index = int(candidate_id) - 1
     return source[index] if 0 <= index < len(source) else None
 
@@ -261,9 +273,9 @@ def search_catalog(raw_query, limit=25):
 
 def choose_questions(kind, purpose, count):
     """Select high-information observations locally, with a purpose-specific priority bias."""
-    candidates = MINERALS if kind == "minerals" else ROCKS
-    specs = MINERAL_SPECS if kind == "minerals" else ROCK_SPECS
-    priority = PURPOSES[purpose]["priority"]
+    candidates = candidates_for(kind)
+    specs = specs_for(kind)
+    priority = THIN_PRIORITY if kind == "thin" else PURPOSES[purpose]["priority"]
     rank = {field: i for i, field in enumerate(priority)}
     scored = []
     for field, label, weight, _ in specs:
@@ -282,8 +294,8 @@ def choose_questions(kind, purpose, count):
 
 
 def identify(kind, answers, selected_fields):
-    candidates = MINERALS if kind == "minerals" else ROCKS
-    specs = [s for s in (MINERAL_SPECS if kind == "minerals" else ROCK_SPECS) if s[0] in selected_fields]
+    candidates = candidates_for(kind)
+    specs = [s for s in specs_for(kind) if s[0] in selected_fields]
     total_weight = sum(s[2] for s in specs)
     answered_count = sum(is_answered(answers.get(s[0])) for s in specs)
     if answered_count == 0:
@@ -350,15 +362,14 @@ def inject_globals():
 
 def render_setup(kind, error=None):
     return render_template("setup.html", kind=kind, purposes=PURPOSES, error=error,
-                           count_max=max(p["max"] for p in PURPOSES.values()))
+                           count_max=max(p["max"] for p in PURPOSES.values()),
+                           counts=[5, 8, 10, 12, 15, 20] if kind != "thin" else [5, 8, 10, 12, 14])
 
 
 def setup_and_form(kind):
     if request.method == "GET":
         return render_setup(kind)
-    purpose = request.form.get("purpose", "general")
-    if purpose not in PURPOSES:
-        return render_setup(kind, "Choisissez un objectif valide."), 400
+    purpose = DEFAULT_PURPOSE
     try:
         count = int(request.form.get("question_count", PURPOSES[purpose]["default"]))
     except ValueError:
@@ -366,18 +377,20 @@ def setup_and_form(kind):
     count = max(3, min(count, PURPOSES[purpose]["max"]))
     fields = choose_questions(kind, purpose, count)
     session["geoidentify_setup"] = {"kind": kind, "purpose": purpose, "count": len(fields), "fields": fields}
-    noun = "minéral" if kind == "minerals" else "roche"
+    page_title = {"minerals": "Identifier un minéral", "rocks": "Identifier une roche",
+                  "thin": "Identifier un minéral en lame mince"}[kind]
+    result_endpoint = {"minerals": "mineral_result", "rocks": "rock_result", "thin": "thin_result"}[kind]
     return render_template("identify-form.html", kind=kind,
-        page_title=f"Identifier un {noun}",
+        page_title=page_title,
         lead=f"{len(fields)} questions sélectionnées pour : {PURPOSES[purpose]['label']}. Les questions sont choisies localement pour être les plus discriminantes possibles.",
-        form_action=url_for("mineral_result" if kind == "minerals" else "rock_result"),
+        form_action=url_for(result_endpoint),
         submit_label="Voir le résultat", questions=build_questions(kind, fields), error=None,
         purpose_label=PURPOSES[purpose]["label"])
 
 
 @app.get("/")
 def home():
-    return render_template("index.html", mineral_count=len(MINERALS), rock_count=len(ROCKS))
+    return render_template("index.html", mineral_count=len(MINERALS), rock_count=len(ROCKS), thin_count=len(THIN_MINERALS))
 
 
 @app.get("/search")
@@ -464,4 +477,51 @@ def rock_detail(identifier):
 def not_found(_error): return render_template("error.html"), 404
 
 
-if __name__ == "__main__": app.run(debug=True)
+
+
+# ---------------------------------------------------------------------------
+# Lames minces (microscope polarisant)
+# ---------------------------------------------------------------------------
+@app.route("/thin/identify", methods=["GET", "POST"])
+def thin_form():
+    return setup_and_form("thin")
+
+
+@app.route("/thin/result", methods=["GET", "POST"])
+def thin_result():
+    setup = session.get("geoidentify_setup")
+    if not setup or setup.get("kind") != "thin":
+        return redirect(url_for("thin_form"))
+    if request.method == "POST":
+        fields = setup["fields"]
+        answers = {field: request.form.get(field, UNKNOWN) for field in fields}
+        if identify("thin", answers, fields) is None:
+            return render_template("identify-form.html", kind="thin", page_title="Identifier un minéral en lame mince",
+                lead=f"{setup['count']} questions sélectionnées pour : {PURPOSES[setup['purpose']]['label']}.",
+                form_action=url_for("thin_result"), submit_label="Voir le résultat",
+                questions=build_questions("thin", fields), error="Répondez à au moins une question pour lancer l'identification.",
+                purpose_label=PURPOSES[setup['purpose']]['label']), 400
+        session["geoidentify"] = {"kind": "thin", "answers": answers, "fields": fields}
+        return redirect(url_for("thin_result"))
+    saved = session.get("geoidentify")
+    if not saved or saved.get("kind") != "thin":
+        return redirect(url_for("thin_form"))
+    return render_template("results.html", outcome=identify("thin", saved["answers"], saved["fields"]),
+                           kind="thin", noun="minéral (lame mince)", restart_url=url_for("thin_form"))
+
+
+@app.get("/thin/<int:identifier>")
+def thin_detail(identifier):
+    mineral = candidate_by_id("thin", identifier)
+    if mineral is None:
+        return render_template("error.html"), 404
+    return render_template("thin-detail.html", m=mineral, tt=thin_data)
+
+
+@app.get("/thin/guide")
+def thin_guide():
+    return render_template("thin-guide.html", tt=thin_data, count=len(THIN_MINERALS))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

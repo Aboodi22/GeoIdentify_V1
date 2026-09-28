@@ -26,6 +26,7 @@
         <nav aria-label="Navigation principale">
             <a href="{{ url_for('mineral_form') }}" class="{% if kind|default('') == 'minerals' %}is-active{% endif %}">Minéraux</a>
             <a href="{{ url_for('rock_form') }}" class="{% if kind|default('') == 'rocks' %}is-active{% endif %}">Roches</a>
+            <a href="{{ url_for('thin_form') }}" class="{% if kind|default('') == 'thin' %}is-active{% endif %}">Lames minces</a>
         </nav>
         <form class="search-box" action="{{ url_for('search') }}" method="get" role="search" aria-label="Rechercher un minéral ou une roche">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" class="search-icon">

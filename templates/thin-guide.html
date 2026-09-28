@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Guide de la lame mince{% endblock %}
+{% block content %}
+<main class="wrap detail-wrap">
+    <a class="back" href="{{ url_for('thin_form') }}">Identification en lame mince</a>
+    <h1>Guide : identifier en lame mince</h1>
+    <p class="lead">Le système cristallin ne se voit pas directement au microscope. On le <b>déduit</b> de l'extinction, de la forme des sections et de la conoscopie. Voici la logique utilisée par GeoIdentify.</p>
+
+    <section class="panel">
+        <h2>1. Système cristallin → indicatrice → ce que vous observez</h2>
+        <table class="evidence">
+            <thead><tr><th>Système</th><th>Indicatrice</th><th>Classe optique</th><th>En LPA</th><th>Conoscopie</th></tr></thead>
+            <tbody>
+                <tr><th scope="row">Cubique</th><td>Sphère</td><td>Isotrope</td><td>Toujours éteint</td><td>Pas de figure</td></tr>
+                <tr><th scope="row">Quadratique</th><td>Ellipsoïde de révolution</td><td>Uniaxe</td><td>Extinction droite ; section basale éteinte</td><td>Croix noire fixe</td></tr>
+                <tr><th scope="row">Hexagonal</th><td>Ellipsoïde de révolution</td><td>Uniaxe</td><td>Extinction droite ; section basale éteinte</td><td>Croix noire fixe</td></tr>
+                <tr><th scope="row">Trigonal</th><td>Ellipsoïde de révolution</td><td>Uniaxe</td><td>Extinction droite ou symétrique (carbonates)</td><td>Croix noire fixe</td></tr>
+                <tr><th scope="row">Orthorhombique</th><td>Ellipsoïde à 3 axes</td><td>Biaxe</td><td>Extinction droite</td><td>Croix qui s'ouvre en hyperboles</td></tr>
+                <tr><th scope="row">Monoclinique</th><td>Ellipsoïde à 3 axes</td><td>Biaxe</td><td>Droite ou oblique selon la section</td><td>Hyperboles</td></tr>
+                <tr><th scope="row">Triclinique</th><td>Ellipsoïde à 3 axes</td><td>Biaxe</td><td>Toujours oblique</td><td>Hyperboles</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>2. Uniaxe ou biaxe : que change l'ellipsoïde ?</h2>
+        <table class="evidence">
+            <thead><tr><th></th><th>Uniaxe</th><th>Biaxe</th></tr></thead>
+            <tbody>
+                <tr><th scope="row">Indices principaux</th><td>nω et nε</td><td>nα &lt; nβ &lt; nγ</td></tr>
+                <tr><th scope="row">Axes optiques</th><td>1 (l'axe c)</td><td>2, séparés par l'angle 2V</td></tr>
+                <tr><th scope="row">Signe (+)</th><td>nε &gt; nω (ellipsoïde allongé)</td><td>Z est la bissectrice aiguë</td></tr>
+                <tr><th scope="row">Signe (−)</th><td>nε &lt; nω (ellipsoïde aplati)</td><td>X est la bissectrice aiguë</td></tr>
+                <tr><th scope="row">Exemples</th><td>Quartz (+), calcite (−), tourmaline (−), zircon (+)</td><td>Micas (−), pyroxènes, olivine, feldspaths</td></tr>
+            </tbody>
+        </table>
+        <p class="help">L'indicatrice sert surtout à départager des minéraux qui se ressemblent : quartz (uniaxe +) contre cordiérite (biaxe), ou apatite (uniaxe −) contre zoïsite (biaxe +).</p>
+    </section>
+
+    <section class="panel">
+        <h2>3. Méthode d'observation conseillée</h2>
+        <table class="evidence">
+            <thead><tr><th>Étape</th><th>Mode</th><th>Ce que vous notez</th></tr></thead>
+            <tbody>
+                <tr><th scope="row">1</th><td>LPNA (polariseur seul)</td><td>Couleur, pléochroïsme, relief, forme, clivages</td></tr>
+                <tr><th scope="row">2</th><td>LPA (analyseur inséré)</td><td>Teinte de polarisation maximale, extinction, macles, zonage</td></tr>
+                <tr><th scope="row">3</th><td>Lame accessoire</td><td>Signe d'allongement</td></tr>
+                <tr><th scope="row">4</th><td>Conoscopie (objectif fort)</td><td>Uniaxe ou biaxe, signe optique, taille du 2V</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel caution">
+        <h2>Limites</h2>
+        <p>Une lame mince donne une coupe au hasard dans chaque cristal : les propriétés observées dépendent de l'orientation de la section. C'est pourquoi plusieurs réponses restent possibles pour un même minéral (par exemple le relief changeant de la calcite). Estimation éducative : confirmez avec votre enseignant ou un laboratoire ({{ count }} minéraux en base).</p>
+    </section>
+</main>
+{% endblock %}

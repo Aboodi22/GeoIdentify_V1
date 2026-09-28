@@ -6,7 +6,7 @@
         <div class="wrap hero-grid">
             <div>
                 <h1>Identifiez ce que vous tenez dans la main.</h1>
-                <p class="lead">Choisissez votre objectif et le nombre de questions. GeoIdentify sélectionne les observations les plus discriminantes, classe les candidats et montre ce qui concorde ou contredit.</p>
+                <p class="lead">Choisissez le nombre de questions. GeoIdentify sélectionne les observations les plus discriminantes, classe les candidats et montre ce qui concorde ou contredit.</p>
             </div>
             <svg class="crystals" viewBox="0 0 320 300" aria-hidden="true">
                 <polygon points="60,130 100,96 100,250 60,282" fill="#0a5945"/>
@@ -34,6 +34,12 @@
             <h2>Une roche</h2>
             <p>Texture, teinte, minéral principal, couches, foliation, fossiles.</p>
             <span class="choice-meta"><b>{{ rock_count }}</b> roches en base</span>
+            <span class="choice-cta">Commencer</span>
+        </a>
+        <a class="choice" href="{{ url_for('thin_form') }}">
+            <h2>Une lame mince</h2>
+            <p>Relief, teintes de polarisation, extinction, macles, conoscopie (uniaxe / biaxe).</p>
+            <span class="choice-meta"><b>{{ thin_count }}</b> minéraux en lame mince</span>
             <span class="choice-cta">Commencer</span>
         </a>
     </section>

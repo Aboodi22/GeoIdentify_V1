@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ m.name }} — lame mince{% endblock %}
+{% block content %}
+<main class="wrap detail-wrap">
+    <a class="back" href="{{ url_for('thin_form') }}">Identification en lame mince</a>
+    <h1>{{ m.name }}</h1>
+    <p class="tag">{{ m.category }} · {{ m.chemicalFormula }}</p>
+    <p class="lead">{{ m.description }}</p>
+
+    <section class="panel">
+        <h2>Système cristallin et indicatrice</h2>
+        <table class="props">
+            <tr><th>Système cristallin</th><td>{{ tt.SYSTEM_LABELS[m.t_system] }}</td></tr>
+            <tr><th>Classe optique</th><td>{{ tt.CLASS_LABELS[m.t_opticclass] }}</td></tr>
+            <tr><th>Signe optique</th><td>{{ tt.SIGN_LABELS[m.t_opticsign] }}</td></tr>
+            <tr><th>Angle 2V</th><td>{{ m.twoV }}</td></tr>
+        </table>
+        <p class="help" style="margin-top:12px;">{{ tt.INDICATRIX_TEXT[m.t_opticclass] }}</p>
+    </section>
+
+    <section class="panel">
+        <h2>Ce que vous voyez au microscope</h2>
+        <table class="props">
+            <tr><th>Relief</th><td>{{ labels_for('t_relief', m.t_relief) }}</td></tr>
+            <tr><th>Couleur (LPNA)</th><td>{{ labels_for('t_color', m.t_color) }}</td></tr>
+            <tr><th>Pléochroïsme</th><td>{{ labels_for('t_pleo', m.t_pleo) }}</td></tr>
+            <tr><th>Forme</th><td>{{ labels_for('t_habit', m.t_habit) }}</td></tr>
+            <tr><th>Clivage</th><td>{{ labels_for('t_cleavage', m.t_cleavage) }}</td></tr>
+            <tr><th>Teinte de polarisation (LPA)</th><td>{{ tt.BIREF_TEXT[m.t_biref.split(',')[0]] }}</td></tr>
+            <tr><th>Extinction</th><td>{{ labels_for('t_extinction', m.t_extinction) }}</td></tr>
+            <tr><th>Macles</th><td>{{ labels_for('t_twinning', m.t_twinning) }}</td></tr>
+            <tr><th>Signe d'allongement</th><td>{{ labels_for('t_elongation', m.t_elongation) if m.t_elongation != 'any' else 'Variable ou non diagnostique' }}</td></tr>
+            <tr><th>Altération fréquente</th><td>{{ labels_for('t_alteration', m.t_alteration) }}</td></tr>
+            <tr><th>Contexte</th><td>{{ labels_for('t_occurrence', m.t_occurrence) }}</td></tr>
+        </table>
+    </section>
+
+    <section class="panel-row">
+        <div class="panel"><h2>Ne pas confondre avec</h2><p>{{ m.lookalikes }}</p></div>
+        <div class="panel caution"><h2>Précaution</h2><p>{{ m.safetyWarning }}</p></div>
+    </section>
+</main>
+{% endblock %}
