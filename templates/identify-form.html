@@ -20,6 +20,7 @@
         {% for q in questions %}
         <fieldset class="step" data-step="{{ loop.index0 }}">
             <legend tabindex="-1">{{ q.title }}</legend>
+            {% if q.mode %}<p class="mode-line"><span class="mode-badge mode-{{ q.mode|lower }}">{{ q.mode_label }}</span></p>{% endif %}
             <p class="help">{{ q.help }}</p>
             <div class="options{% if q.visual %} is-visual{% endif %}">
                 {% for o in q.options %}

@@ -315,33 +315,56 @@ THIN_MINERALS = [
 ]
 
 # ---------------------------------------------------------------------------
-# Questions (préfixe t_) : (champ, titre, aide, [(valeur, libellé, indice, teinte)])
+# Données ajoutées : cassure (LPNA) et angle d'extinction (LPA)
+# Valeurs simplifiées à vérifier avec votre cours de minéralogie optique.
+# ---------------------------------------------------------------------------
+_FRACTURE = {
+    "Quartz": "irregular,conchoidal", "Orthose": "none", "Sanidine": "none", "Microcline": "none",
+    "Plagioclase (albite → anorthite)": "none", "Muscovite": "none", "Biotite": "none",
+    "Hornblende (amphibole)": "none", "Augite (clinopyroxène)": "irregular", "Diopside": "irregular",
+    "Enstatite (orthopyroxène)": "irregular", "Olivine": "irregular,network", "Calcite": "none",
+    "Dolomite": "none", "Aragonite": "none", "Grenat": "irregular", "Épidote": "irregular",
+    "Zoïsite": "irregular", "Chlorite": "none", "Serpentine": "network", "Talc": "none",
+    "Tourmaline": "irregular", "Zircon": "irregular", "Apatite": "irregular",
+    "Titanite (sphène)": "irregular", "Staurolite": "irregular", "Andalousite": "irregular",
+    "Sillimanite": "irregular", "Disthène (kyanite)": "irregular", "Cordiérite": "irregular",
+    "Trémolite / Actinote": "none", "Glaucophane": "none", "Wollastonite": "none",
+    "Scapolite": "irregular", "Vésuvianite": "irregular", "Rutile": "irregular",
+    "Cassitérite": "irregular", "Corindon": "irregular", "Anhydrite": "none", "Gypse": "none",
+    "Halite": "none", "Fluorite": "none", "Spinelle": "irregular", "Analcime": "irregular",
+    "Sodalite": "irregular", "Leucite": "irregular", "Néphéline": "irregular",
+    "Glauconite": "irregular", "Verre volcanique (amorphe)": "perlitic,conchoidal",
+    "Minéraux opaques (magnétite, ilménite, pyrite…)": "irregular",
+}
+# Angle d'extinction : parallel 0-5°, small 5-20°, medium 20-35°, large >35°.
+_EXTINCTION = {
+    "Quartz": "parallel", "Orthose": "parallel,small", "Sanidine": "parallel", "Microcline": "small",
+    "Plagioclase (albite → anorthite)": "small,medium,large", "Muscovite": "parallel", "Biotite": "parallel",
+    "Hornblende (amphibole)": "small,medium", "Augite (clinopyroxène)": "large", "Diopside": "large",
+    "Enstatite (orthopyroxène)": "parallel", "Olivine": "parallel", "Calcite": "symmetrical",
+    "Dolomite": "symmetrical", "Aragonite": "parallel", "Grenat": "isotropic", "Épidote": "parallel",
+    "Zoïsite": "parallel", "Chlorite": "parallel", "Serpentine": "parallel", "Talc": "parallel",
+    "Tourmaline": "parallel", "Zircon": "parallel", "Apatite": "parallel",
+    "Titanite (sphène)": "medium,large", "Staurolite": "parallel", "Andalousite": "parallel",
+    "Sillimanite": "parallel", "Disthène (kyanite)": "medium", "Cordiérite": "parallel",
+    "Trémolite / Actinote": "small,medium", "Glaucophane": "parallel,small", "Wollastonite": "small,medium",
+    "Scapolite": "parallel", "Vésuvianite": "parallel", "Rutile": "parallel", "Cassitérite": "parallel",
+    "Corindon": "parallel", "Anhydrite": "parallel", "Gypse": "large", "Halite": "isotropic",
+    "Fluorite": "isotropic", "Spinelle": "isotropic", "Analcime": "isotropic", "Sodalite": "isotropic",
+    "Leucite": "parallel", "Néphéline": "parallel", "Glauconite": "parallel",
+    "Verre volcanique (amorphe)": "isotropic",
+    "Minéraux opaques (magnétite, ilménite, pyrite…)": "isotropic",
+}
+for _m in THIN_MINERALS:
+    _m["t_fracture"] = _FRACTURE[_m["name"]]      # KeyError si un minéral est oublié
+    _m["t_extinction"] = _EXTINCTION[_m["name"]]
+
+# ---------------------------------------------------------------------------
+# Questions posées : d'abord LPNA (polariseur seul), puis LPA (analyseur inséré)
+# (champ, titre, aide, [(valeur, libellé, indice, teinte)])
 # ---------------------------------------------------------------------------
 THIN_QUESTIONS = [
-    ("t_relief", "Quel est le relief du minéral ?",
-     "En LPNA, le relief montre l'écart entre l'indice du minéral et celui de la résine (≈ 1,54). Plus les bords sont marqués et rugueux, plus le relief est fort.", [
-        ("negative", "Négatif", "Bords nets mais indice inférieur à la résine (ligne de Becke qui va vers la résine)", None),
-        ("low", "Faible", "Presque invisible dans la résine (quartz, feldspaths)", None),
-        ("moderate", "Moyen", "Contour visible, surface un peu granuleuse", None),
-        ("high", "Fort", "Contour net, surface rugueuse (pyroxènes, olivine, épidote)", None),
-        ("very-high", "Très fort", "Contour très sombre, saillant (grenat, zircon, sphène)", None),
-    ]),
-    ("t_color", "Quelle est la couleur en LPNA (sans analyseur) ?",
-     "Observez le minéral avec le polariseur seul.", [
-        ("colorless", "Incolore", None, "#f4f6f4"),
-        ("green", "Vert", None, "#7bb27a"),
-        ("brown", "Brun", None, "#a87446"),
-        ("yellow", "Jaune", None, "#e0c34a"),
-        ("blue", "Bleu / violet", None, "#6a86c9"),
-        ("pink", "Rose", None, "#e6a6b8"),
-        ("opaque", "Opaque (noir)", "Reste noir, y compris en LPA", "#161616"),
-    ]),
-    ("t_pleo", "Le minéral change-t-il de couleur quand on tourne la platine ?",
-     "C'est le pléochroïsme (LPNA). Tournez la platine de 90° et comparez.", [
-        ("none", "Non, aucun changement", None, None),
-        ("weak", "Léger", "Changement de teinte peu marqué", None),
-        ("strong", "Oui, net", "Passage clair/foncé ou de couleur bien visible", None),
-    ]),
+    # ---------- LPNA ----------
     ("t_habit", "Quelle est la forme des cristaux en section ?",
      "Regardez le contour dominant des sections du minéral.", [
         ("equant", "Grains équants", "Contour arrondi ou polygonal, sans direction dominante", None),
@@ -351,65 +374,37 @@ THIN_QUESTIONS = [
         ("lozenge", "Losanges / enveloppes", "Sections en losange ou en coin", None),
         ("interstitial", "Xénomorphe", "Remplit les espaces entre les autres minéraux", None),
     ]),
+    ("t_fracture", "Comment est la cassure (fractures) du minéral ?",
+     "Ce sont les cassures qui ne suivent pas une direction régulière, à ne pas confondre avec les clivages.", [
+        ("irregular", "Fractures irrégulières", "Cassures en zigzag ou transversales (olivine, grenat, zircon)", None),
+        ("conchoidal", "Fractures courbes (conchoïdales)", "Cassures arrondies en coquille (quartz, verre)", None),
+        ("perlitic", "Fissures arrondies concentriques", "Réseau de fissures en « perles » (verre volcanique)", None),
+        ("network", "Réseau de fissures", "Veinules qui s'entrecroisent (olivine serpentinisée)", None),
+        ("none", "Peu ou pas de fractures", "Le minéral est surtout marqué par ses clivages", None),
+    ]),
+    ("t_color", "Quelle est la couleur en LPNA ?",
+     "Observez le minéral avec le polariseur seul, sans analyseur.", [
+        ("colorless", "Incolore", None, "#f4f6f4"),
+        ("green", "Vert", None, "#7bb27a"),
+        ("brown", "Brun", None, "#a87446"),
+        ("yellow", "Jaune", None, "#e0c34a"),
+        ("blue", "Bleu / violet", None, "#6a86c9"),
+        ("pink", "Rose", None, "#e6a6b8"),
+        ("opaque", "Opaque (noir)", "Reste noir, y compris en LPA", "#161616"),
+    ]),
+    ("t_pleo", "Le minéral change-t-il de couleur quand on tourne la platine ?",
+     "C'est le pléochroïsme. Tournez la platine de 90° et comparez.", [
+        ("none", "Non, aucun changement", None, None),
+        ("weak", "Léger", "Changement de teinte peu marqué", None),
+        ("strong", "Oui, net", "Passage clair/foncé ou de couleur bien visible", None),
+    ]),
     ("t_cleavage", "Quels clivages voyez-vous ?",
-     "Traits fins et parallèles en LPNA. Mesurez l'angle entre deux directions si possible.", [
-        ("none", "Aucun (fractures irrégulières)", None, None),
+     "Traits fins et parallèles. Mesurez l'angle entre deux directions si possible.", [
+        ("none", "Aucun", None, None),
         ("one", "Une direction", "Traits tous parallèles (micas, chlorite)", None),
         ("two-90", "Deux directions à ≈ 90°", "Pyroxènes (87°/93°), feldspaths, andalousite", None),
         ("two-oblique", "Deux directions obliques", "Amphiboles (56°/124°), carbonates (75°/105°)", None),
         ("three", "Trois directions ou plus", "Halite, anhydrite, fluorite", None),
-    ]),
-    ("t_biref", "Quelle est la teinte de polarisation maximale (LPA) ?",
-     "Analyseur inséré : cherchez la teinte la plus haute atteinte par le minéral en tournant la platine. Repérez-vous avec le quartz : gris-blanc.", [
-        ("isotropic", "Toujours noir", "Reste éteint dans toutes les positions", "#111111"),
-        ("low", "Gris, blanc, jaune pâle (1er ordre)", "Comme le quartz et les feldspaths", "linear-gradient(90deg,#555,#bbb,#f3ecc0)"),
-        ("medium", "Jaune, orange, rouge, bleu-vert", "1er ordre haut à 2e ordre bas", "linear-gradient(90deg,#e6c84a,#e58a2f,#c8412f,#3f6fbf)"),
-        ("high", "Teintes vives (2e ordre)", "Rouge, bleu, vert saturés", "linear-gradient(90deg,#c83a3a,#3a62c8,#3aa860)"),
-        ("very-high", "Blanc nacré / pastel d'ordre élevé", "3e ordre et plus (carbonates, sphène)", "linear-gradient(90deg,#f0d6e6,#cfe6d6,#f5f0d8)"),
-    ]),
-    ("t_extinction", "Comment le minéral s'éteint-il en LPA ?",
-     "Tournez la platine jusqu'à l'extinction et comparez avec les clivages ou l'allongement.", [
-        ("isotropic", "Ne s'éclaire jamais", "Noir permanent (isotrope)", None),
-        ("parallel", "Droite (parallèle)", "Éteint quand le clivage ou l'allongement est aligné avec un fil du réticule", None),
-        ("oblique", "Oblique", "Éteint quand le clivage est incliné (angle mesurable)", None),
-        ("symmetrical", "Symétrique", "Éteint symétriquement par rapport aux deux clivages ou diagonales", None),
-        ("undulose", "Roulante (ondulante)", "L'ombre balaie le cristal (typique du quartz déformé)", None),
-        ("birdseye", "En œil d'oiseau", "Aspect piqueté, typique des micas", None),
-    ]),
-    ("t_twinning", "Voyez-vous des macles ?",
-     "Lamelles ou plages de teintes différentes séparées par des lignes droites, en LPA.", [
-        ("none", "Aucune", None, None),
-        ("polysynthetic", "Lamelles parallèles (polysynthétiques)", "Aspect « code-barres » (plagioclases, calcite)", None),
-        ("simple", "Macle simple (deux plages)", "Deux moitiés opposées (Carlsbad, amphibole, pyroxène)", None),
-        ("grid", "Quadrillage", "Deux réseaux de lamelles croisées (microcline)", None),
-        ("cross", "En croix ou en genou", "Staurolite, rutile, cassitérite", None),
-        ("sector", "En secteurs", "Plusieurs secteurs (cordiérite)", None),
-    ]),
-    ("t_elongation", "Quel est le signe d'allongement ?",
-     "Pour un cristal allongé, insérez la lame accessoire (λ = 530 nm) à 45° : la teinte monte (bleue) si l'allongement est positif (lent) et descend (jaune) s'il est négatif (rapide).", [
-        ("positive", "Positif (allongement lent)", "La teinte monte quand la lame est insérée", None),
-        ("negative", "Négatif (allongement rapide)", "La teinte descend", None),
-    ]),
-    ("t_opticclass", "Que montre la conoscopie (figure d'interférence) ?",
-     "Lumière convergente, fort objectif, analyseur inséré, section proche de l'axe optique. C'est ce qui révèle l'indicatrice du minéral.", [
-        ("isotropic", "Aucune figure (reste noir)", "Minéral isotrope : cubique ou verre", None),
-        ("uniaxial", "Croix noire qui reste fixe", "Uniaxe : quadratique, hexagonal ou trigonal", None),
-        ("biaxial", "Croix qui se sépare en hyperboles", "Biaxe : orthorhombique, monoclinique ou triclinique", None),
-    ]),
-    ("t_opticsign", "Quel est le signe optique ?",
-     "En conoscopie avec la lame accessoire : le déplacement des couleurs dans les quadrants indique le signe (+) ou (−).", [
-        ("positive", "Positif (+)", "Ellipsoïde allongé (uniaxe) ou Z bissectrice aiguë (biaxe)", None),
-        ("negative", "Négatif (−)", "Ellipsoïde aplati (uniaxe) ou X bissectrice aiguë (biaxe)", None),
-    ]),
-    ("t_system", "Connaissez-vous déjà le système cristallin ?",
-     "Il ne s'observe pas directement : on le déduit de la forme, de l'extinction et de la conoscopie. Répondez seulement si vous l'avez déterminé.", [
-        ("cubic", "Cubique", "Toujours isotrope", None),
-        ("tetragonal", "Quadratique", "Uniaxe ; sections carrées ou octogonales", None),
-        ("hexagonal", "Hexagonal", "Uniaxe ; sections hexagonales ou triangulaires", None),
-        ("trigonal", "Trigonal", "Uniaxe ; rhomboèdres, sections triangulaires", None),
-        ("orthorhombic", "Orthorhombique", "Biaxe ; extinction droite", None),
-        ("monoclinic", "Monoclinique", "Biaxe ; extinction droite ou oblique selon la section", None),
-        ("triclinic", "Triclinique", "Biaxe ; extinction toujours oblique", None),
     ]),
     ("t_alteration", "Le minéral est-il altéré ? En quoi ?",
      "Regardez l'aspect de surface et les bordures.", [
@@ -419,40 +414,86 @@ THIN_QUESTIONS = [
         ("serpentine", "Veinules (serpentine)", "Réseau de fissures fibreuses", None),
         ("iron-oxide", "Oxydes de fer", "Halos ou taches rouille", None),
     ]),
-    ("t_occurrence", "Dans quel type de roche observez-vous ce minéral ?",
-     "Le contexte est un indice fort pour départager deux minéraux proches.", [
-        ("acid-igneous", "Roche magmatique acide (granite…)", None, None),
-        ("basic-igneous", "Roche magmatique basique (gabbro, basalte…)", None, None),
-        ("ultrabasic", "Roche ultrabasique (péridotite…)", None, None),
-        ("volcanic", "Roche volcanique", None, None),
-        ("pegmatite", "Pegmatite", None, None),
-        ("metamorphic", "Roche métamorphique (schiste, gneiss…)", None, None),
-        ("carbonate-skarn", "Marbre / skarn", None, None),
-        ("sedimentary", "Roche sédimentaire", None, None),
-        ("evaporite", "Évaporite", None, None),
-        ("hydrothermal", "Filon hydrothermal", None, None),
+    ("t_relief", "Quel est le relief du minéral ?",
+     "Le relief montre l'écart entre l'indice du minéral et celui de la résine (≈ 1,54). Plus les bords sont marqués et rugueux, plus le relief est fort.", [
+        ("negative", "Négatif", "Indice inférieur à la résine (la ligne de Becke va vers la résine)", None),
+        ("low", "Faible", "Presque invisible dans la résine (quartz, feldspaths)", None),
+        ("moderate", "Moyen", "Contour visible, surface un peu granuleuse", None),
+        ("high", "Fort", "Contour net, surface rugueuse (pyroxènes, olivine, épidote)", None),
+        ("very-high", "Très fort", "Contour très sombre, saillant (grenat, zircon, sphène)", None),
+    ]),
+    # ---------- LPA ----------
+    ("t_biref", "Y a-t-il une biréfringence ? Quelle est la teinte de polarisation maximale ?",
+     "Analyseur inséré : tournez la platine. Si le minéral reste noir partout, il n'est pas biréfringent. Sinon, repérez la teinte la plus haute (le quartz est gris-blanc).", [
+        ("isotropic", "Pas de biréfringence", "Reste noir dans toutes les positions", "#111111"),
+        ("low", "Faible : gris, blanc, jaune pâle", "1er ordre, comme le quartz et les feldspaths", "linear-gradient(90deg,#555,#bbb,#f3ecc0)"),
+        ("medium", "Moyenne : jaune, orange, rouge, bleu-vert", "1er ordre haut à 2e ordre bas", "linear-gradient(90deg,#e6c84a,#e58a2f,#c8412f,#3f6fbf)"),
+        ("high", "Forte : teintes vives", "2e ordre : rouge, bleu, vert saturés", "linear-gradient(90deg,#c83a3a,#3a62c8,#3aa860)"),
+        ("very-high", "Très forte : blanc nacré / pastel", "3e ordre et plus (carbonates, sphène)", "linear-gradient(90deg,#f0d6e6,#cfe6d6,#f5f0d8)"),
+    ]),
+    ("t_extinction", "Quel est l'angle d'extinction ?",
+     "Tournez la platine jusqu'à l'extinction, puis mesurez l'angle entre un clivage (ou l'allongement du cristal) et le fil du réticule.", [
+        ("isotropic", "Pas d'extinction à mesurer", "Le minéral reste noir (isotrope)", None),
+        ("parallel", "Droite (≈ 0 à 5°)", "Éteint quand le clivage est aligné avec le fil", None),
+        ("small", "Oblique faible (≈ 5 à 20°)", None, None),
+        ("medium", "Oblique moyenne (≈ 20 à 35°)", None, None),
+        ("large", "Oblique forte (> 35°)", "Typique des clinopyroxènes", None),
+        ("symmetrical", "Symétrique", "Éteint symétriquement par rapport aux clivages (carbonates)", None),
+    ]),
+    ("t_twinning", "Voyez-vous des macles ?",
+     "Lamelles ou plages de teintes différentes séparées par des lignes droites, observées en LPA.", [
+        ("none", "Aucune", None, None),
+        ("polysynthetic", "Lamelles parallèles (polysynthétiques)", "Aspect « code-barres » (plagioclases, calcite)", None),
+        ("simple", "Macle simple (deux plages)", "Deux moitiés opposées (Carlsbad, amphibole, pyroxène)", None),
+        ("grid", "Quadrillage", "Deux réseaux de lamelles croisées (microcline)", None),
+        ("cross", "En croix ou en genou", "Staurolite, rutile, cassitérite", None),
+        ("sector", "En secteurs", "Plusieurs secteurs (cordiérite)", None),
     ]),
 ]
 
+# Mode d'observation de chaque question et ordre d'affichage (LPNA puis LPA)
+THIN_MODE = {
+    "t_habit": "LPNA", "t_fracture": "LPNA", "t_color": "LPNA", "t_pleo": "LPNA",
+    "t_cleavage": "LPNA", "t_alteration": "LPNA", "t_relief": "LPNA",
+    "t_biref": "LPA", "t_extinction": "LPA", "t_twinning": "LPA",
+}
+THIN_MODE_LABELS = {
+    "LPNA": "LPNA : lumière polarisée non analysée (polariseur seul)",
+    "LPA": "LPA : lumière polarisée analysée (analyseur inséré)",
+}
+THIN_ORDER = ["t_habit", "t_fracture", "t_color", "t_pleo", "t_cleavage", "t_alteration", "t_relief",
+              "t_biref", "t_extinction", "t_twinning"]
+
+# Libellés des caractères conservés sur les fiches mais qui ne sont plus demandés
+THIN_HIDDEN_LABELS = {
+    "t_opticclass": {"isotropic": "Isotrope", "uniaxial": "Uniaxe", "biaxial": "Biaxe"},
+    "t_opticsign": {"positive": "Positif (+)", "negative": "Négatif (−)"},
+    "t_elongation": {"positive": "Positif (allongement lent)", "negative": "Négatif (allongement rapide)"},
+    "t_system": {"cubic": "Cubique", "tetragonal": "Quadratique", "hexagonal": "Hexagonal",
+                 "trigonal": "Trigonal", "orthorhombic": "Orthorhombique", "monoclinic": "Monoclinique",
+                 "triclinic": "Triclinique", "amorphous": "Amorphe"},
+    "t_occurrence": {"acid-igneous": "Roche magmatique acide", "basic-igneous": "Roche magmatique basique",
+                     "ultrabasic": "Roche ultrabasique", "volcanic": "Roche volcanique",
+                     "pegmatite": "Pegmatite", "metamorphic": "Roche métamorphique",
+                     "carbonate-skarn": "Marbre / skarn", "sedimentary": "Roche sédimentaire",
+                     "evaporite": "Évaporite", "hydrothermal": "Filon hydrothermal"},
+}
+
 RELIEF_LEVELS = ["negative", "low", "moderate", "high", "very-high"]
 BIREF_LEVELS = ["isotropic", "low", "medium", "high", "very-high"]
+ANGLE_LEVELS = ["parallel", "small", "medium", "large"]
 
 THIN_SPECS = [
-    ("t_biref", "Teinte de polarisation", 18, "ord:biref"),
+    ("t_biref", "Biréfringence / teinte de polarisation", 18, "ord:biref"),
+    ("t_extinction", "Angle d'extinction", 16, "ord:angle"),
     ("t_relief", "Relief", 16, "ord:relief"),
-    ("t_opticclass", "Conoscopie (indicatrice)", 16, "exact"),
-    ("t_extinction", "Extinction", 14, "exact"),
     ("t_cleavage", "Clivage", 14, "exact"),
     ("t_twinning", "Macles", 12, "exact"),
-    ("t_opticsign", "Signe optique", 12, "exact"),
     ("t_color", "Couleur (LPNA)", 10, "exact"),
     ("t_pleo", "Pléochroïsme", 10, "exact"),
-    ("t_system", "Système cristallin", 10, "exact"),
     ("t_habit", "Forme des cristaux", 8, "exact"),
-    ("t_elongation", "Signe d'allongement", 8, "exact"),
-    ("t_occurrence", "Contexte géologique", 6, "exact"),
+    ("t_fracture", "Cassure (fractures)", 8, "exact"),
     ("t_alteration", "Altération", 5, "exact"),
 ]
-THIN_PRIORITY = ["t_biref", "t_extinction", "t_relief", "t_opticclass", "t_cleavage", "t_twinning",
-                 "t_color", "t_pleo", "t_opticsign", "t_system", "t_elongation", "t_habit",
-                 "t_alteration", "t_occurrence"]
+THIN_PRIORITY = ["t_biref", "t_relief", "t_extinction", "t_cleavage", "t_twinning", "t_color",
+                 "t_pleo", "t_habit", "t_fracture", "t_alteration"]

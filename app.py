@@ -6,7 +6,8 @@ from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, session
 from data import MINERALS, ROCKS, QUESTION_CATALOG, expand_catalog
 import thin_data
-from thin_data import THIN_MINERALS, THIN_QUESTIONS, THIN_SPECS, THIN_PRIORITY
+from thin_data import (THIN_MINERALS, THIN_QUESTIONS, THIN_SPECS, THIN_PRIORITY, THIN_MODE,
+                       THIN_MODE_LABELS, THIN_ORDER, THIN_HIDDEN_LABELS)
 
 QUESTION_CATALOG["thin"] = THIN_QUESTIONS
 
@@ -106,7 +107,8 @@ def exact_factor(answer, expected, related=None):
     return 0.0
 
 
-ORDINAL_LEVELS = {"hardness": HARDNESS_LEVELS, "relief": thin_data.RELIEF_LEVELS, "biref": thin_data.BIREF_LEVELS}
+ORDINAL_LEVELS = {"hardness": HARDNESS_LEVELS, "relief": thin_data.RELIEF_LEVELS,
+                  "biref": thin_data.BIREF_LEVELS, "angle": thin_data.ANGLE_LEVELS}
 
 
 def ordinal_factor(answer, expected, levels=None):
@@ -127,7 +129,12 @@ def ordinal_factor(answer, expected, levels=None):
 
 def matcher_factor(kind, answer, expected):
     if "any" in expected: return 0.5  # caractère variable : ne tranche pas
-    if kind.startswith("ord:"): return ordinal_factor(answer, expected, ORDINAL_LEVELS[kind[4:]])
+    if kind.startswith("ord:"):
+        levels = ORDINAL_LEVELS[kind[4:]]
+        # Réponse hors échelle (ex. « symétrique », « isotrope ») : comparaison exacte
+        if answer in levels and any(v in levels for v in expected):
+            return ordinal_factor(answer, expected, levels)
+        return exact_factor(answer, expected)
     if kind == "ordinal": return ordinal_factor(answer, expected)
     if kind == "exact_streak": return exact_factor(answer, expected, RELATED_STREAK)
     if kind == "exact_color": return exact_factor(answer, expected, RELATED_COLOR)
@@ -157,8 +164,12 @@ def build_questions(kind, selected_fields=None):
                 swatch = "conic-gradient(#c0392b, #e0b92e, #2e8b57, #2f6db5, #7b4fa1, #c0392b)"
             prepared.append({"value": value, "label": label, "hint": hint, "swatch": swatch})
         prepared.append({"value": UNKNOWN, "label": "Je ne sais pas", "hint": "Passer cette question", "swatch": None})
+        mode = THIN_MODE.get(field) if kind == "thin" else None
         questions.append({"field": field, "title": title, "help": help_text, "options": prepared,
-                          "visual": any(o["swatch"] for o in prepared)})
+                          "visual": any(o["swatch"] for o in prepared),
+                          "mode": mode, "mode_label": THIN_MODE_LABELS.get(mode)})
+    if kind == "thin":  # LPNA d'abord, puis LPA
+        questions.sort(key=lambda q: THIN_ORDER.index(q["field"]))
     return questions
 
 
@@ -167,6 +178,10 @@ for q in QUESTION_CATALOG["minerals"] + QUESTION_CATALOG["rocks"] + QUESTION_CAT
     LABELS.setdefault(q[0], {})
     for value, label, *_ in q[3]:
         LABELS[q[0]][value] = label
+
+# Libellés des caractères affichés sur les fiches mais plus demandés dans le questionnaire
+for _field, _values in THIN_HIDDEN_LABELS.items():
+    LABELS.setdefault(_field, {}).update(_values)
 
 
 def candidates_for(kind):
@@ -290,7 +305,10 @@ def choose_questions(kind, purpose, count):
         score = weight * (0.6 + balance + priority_bonus)
         scored.append((score, rank.get(field, 999), field))
     scored.sort(key=lambda x: (-x[0], x[1], x[2]))
-    return [field for _, _, field in scored[:max(1, min(count, len(scored)))]]
+    chosen = [field for _, _, field in scored[:max(1, min(count, len(scored)))]]
+    if kind == "thin":
+        chosen.sort(key=THIN_ORDER.index)
+    return chosen
 
 
 def identify(kind, answers, selected_fields):
@@ -363,7 +381,7 @@ def inject_globals():
 def render_setup(kind, error=None):
     return render_template("setup.html", kind=kind, purposes=PURPOSES, error=error,
                            count_max=max(p["max"] for p in PURPOSES.values()),
-                           counts=[5, 8, 10, 12, 15, 20] if kind != "thin" else [5, 8, 10, 12, 14])
+                           counts=[5, 8, 10, 12, 15, 20] if kind != "thin" else [5, 7, 10])
 
 
 def setup_and_form(kind):
@@ -382,7 +400,9 @@ def setup_and_form(kind):
     result_endpoint = {"minerals": "mineral_result", "rocks": "rock_result", "thin": "thin_result"}[kind]
     return render_template("identify-form.html", kind=kind,
         page_title=page_title,
-        lead=f"{len(fields)} questions sélectionnées pour : {PURPOSES[purpose]['label']}. Les questions sont choisies localement pour être les plus discriminantes possibles.",
+        lead=(f"{len(fields)} questions : d'abord en LPNA (polariseur seul), puis en LPA (analyseur inséré)."
+              if kind == "thin" else
+              f"{len(fields)} questions sélectionnées pour : {PURPOSES[purpose]['label']}. Les questions sont choisies localement pour être les plus discriminantes possibles."),
         form_action=url_for(result_endpoint),
         submit_label="Voir le résultat", questions=build_questions(kind, fields), error=None,
         purpose_label=PURPOSES[purpose]["label"])

@@ -5,7 +5,7 @@
     <h1>{% if kind == 'thin' %}Identification en lame mince{% else %}Préparer l'identification{% endif %}</h1>
     <p class="lead">
         {% if kind == 'thin' %}
-        Observez votre lame au microscope polarisant (LPNA, LPA, conoscopie). GeoIdentify compare vos observations à {{ 'la base de minéraux' }} et affiche aussi le système cristallin et l'indicatrice de chaque candidat.
+        Observez votre lame au microscope polarisant. Vous répondrez d'abord aux questions en LPNA (polariseur seul : forme, cassure, couleur, pléochroïsme, clivage, altération, relief), puis en LPA (analyseur inséré : biréfringence, angle d'extinction, macles). Chaque résultat affiche aussi le système cristallin et l'indicatrice du minéral.
         {% else %}
         Choisissez le nombre de questions. GeoIdentify sélectionnera localement les plus utiles.
         {% endif %}
@@ -19,7 +19,7 @@
                 <label class="purpose-card is-fixed">
                     <input type="radio" name="purpose" value="academic" checked>
                     <span><strong>Étude universitaire</strong><small>
-                    {% if kind == 'thin' %}Propriétés optiques complètes pour un travail de pétrographie ou de minéralogie optique.
+                    {% if kind == 'thin' %}Observations de pétrographie et de minéralogie optique : 7 en LPNA, 3 en LPA.
                     {% else %}Plus de propriétés pour un travail universitaire.{% endif %}
                     </small></span>
                 </label>
