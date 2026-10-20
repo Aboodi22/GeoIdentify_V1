@@ -2,14 +2,8 @@
 {% block title %}Préparer l'identification{% endblock %}
 {% block content %}
 <main class="wrap form-wrap">
-    <h1>{% if kind == 'thin' %}Identification en lame mince{% else %}Préparer l'identification{% endif %}</h1>
-    <p class="lead">
-        {% if kind == 'thin' %}
-        Observez votre lame au microscope polarisant. Vous répondrez d'abord aux questions en LPNA (polariseur seul : forme, cassure, couleur, pléochroïsme, clivage, altération, relief), puis en LPA (analyseur inséré : biréfringence, angle d'extinction, macles). Chaque résultat affiche aussi le système cristallin et l'indicatrice du minéral.
-        {% else %}
-        Choisissez le nombre de questions. GeoIdentify sélectionnera localement les plus utiles.
-        {% endif %}
-    </p>
+    <h1>Préparer l'identification</h1>
+    <p class="lead">Choisissez le nombre de questions. GeoIdentify sélectionnera localement les plus utiles.</p>
     {% if error %}<div class="alert" role="alert"><p>{{ error }}</p></div>{% endif %}
 
     <form method="post" class="setup-grid">
@@ -19,14 +13,10 @@
                 <label class="purpose-card is-fixed">
                     <input type="radio" name="purpose" value="academic" checked>
                     <span><strong>Étude universitaire</strong><small>
-                    {% if kind == 'thin' %}Observations de pétrographie et de minéralogie optique : 7 en LPNA, 3 en LPA.
-                    {% else %}Plus de propriétés pour un travail universitaire.{% endif %}
+                    Plus de propriétés pour un travail universitaire.
                     </small></span>
                 </label>
             </div>
-            {% if kind == 'thin' %}
-            <p class="help"><a href="{{ url_for('thin_guide') }}">Guide : systèmes cristallins, indicatrice et méthode d'observation</a></p>
-            {% endif %}
         </section>
 
         <section class="setup-section">

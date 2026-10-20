@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Lame mince : question {{ number }}{% endblock %}
+{% block content %}
+<main class="wrap form-wrap">
+    <h1>Identifier un minéral en lame mince</h1>
+    <p class="lead">Répondez avec ce que vous voyez au microscope. Toutes les questions sont posées, sauf si une observation décisive identifie déjà le minéral.</p>
+
+
+    <section class="board" aria-label="Minéraux encore possibles">
+        <h3 class="board-title">Minéraux possibles <small>à chaque réponse, certains sont écartés</small></h3>
+        <ul class="board-list">
+        {% for r in board %}
+            <li class="chip st-{{ r.state }}">
+                <b>{{ r.entry.name }}</b>
+                <span>{% if r.state == 'out' %}écarté{% elif r.state == 'doubt' %}douteux{% else %}possible{% endif %}{% if r.percent is not none %} · {{ r.percent }}%{% endif %}</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </section>
+
+    <div class="wizard thin-step">
+        <div class="progress" aria-label="Progression">
+            {% for st in states %}<span class="seg {{ st }}"></span>{% endfor %}
+        </div>
+        <p class="progress-label">Question <b>{{ number if number <= total else total }}</b> sur {{ total }}</p>
+
+        {% if error %}<div class="alert" role="alert"><p>{{ error }}</p></div>{% endif %}
+
+        <form action="{{ url_for('thin_question') }}" method="post">
+            <input type="hidden" name="field" value="{{ q.field }}">
+            <p class="mode-line"><span class="mode-badge mode-{{ q.mode|lower }}">{{ mode_label }}</span></p>
+            <h2 class="thin-title">{{ q.title }}</h2>
+            <p class="help">{{ q.help }}</p>
+
+            <div class="options{% if q.options|selectattr('swatch')|list %} is-visual{% endif %}">
+                {% for o in q.options %}
+                <button class="opt opt-btn" type="submit" name="answer" value="{{ o.value }}">
+                    {% if o.swatch %}<span class="swatch" style="background:{{ o.swatch }}"></span>{% endif %}
+                    <span class="opt-text">
+                        <span class="opt-label">{{ o.label }}</span>
+                        {% if o.hint %}<span class="opt-hint">{{ o.hint }}</span>{% endif %}
+                    </span>
+                </button>
+                {% endfor %}
+                <button class="opt opt-btn is-unknown" type="submit" name="answer" value="{{ unknown }}">
+                    <span class="opt-text"><span class="opt-label">Je ne sais pas</span><span class="opt-hint">Passer cette question</span></span>
+                </button>
+            </div>
+        </form>
+
+        {% if can_back %}
+        <form action="{{ url_for('thin_back') }}" method="post" class="wizard-nav">
+            <button type="submit" class="btn ghost">Question précédente</button>
+        </form>
+        {% endif %}
+    </div>
+    <p class="help" style="margin-top:14px;"><a href="{{ url_for('thin_guide') }}">Guide : comment observer en LPNA et en LPA</a></p>
+</main>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Résultat : lame mince{% endblock %}
+{% block content %}
+{% set e = outcome.entry %}
+<main class="wrap results">
+    <a class="back" href="{{ url_for('thin_form') }}">Nouvelle identification</a>
+
+    <section class="verdict level-{{ outcome.level }}">
+        <div class="verdict-main">
+            <p class="verdict-label">{{ outcome.verdict }}</p>
+            <h1>{{ e.name }}</h1>
+            <p class="tag">{{ e.formula }}</p>
+            <p class="lead">{{ e.description }}</p>
+            {% if outcome.reason %}<p class="help" style="margin-top:10px;"><b>Observation décisive :</b> {{ outcome.reason }}</p>{% endif %}
+        </div>
+        <div class="confidence" aria-label="Confiance : {{ outcome.confidence }} pour cent">
+            <span class="confidence-value"><b>{{ outcome.confidence }}</b><small>%</small></span>
+            <span class="meter"><i style="width:{{ outcome.confidence }}%"></i></span>
+            <span class="confidence-note">{{ outcome.answered_count }} questions renseignées sur {{ outcome.total_questions }}</span>
+        </div>
+    </section>
+
+    {% if outcome.members %}
+    <section class="panel">
+        <h2>Pour préciser dans le groupe {{ e.name }}</h2>
+        <table class="evidence">
+            <thead><tr><th>Minéral</th><th>Ce qui le distingue</th></tr></thead>
+            <tbody>
+            {% for name, how in e.refine %}
+            <tr><th scope="row" data-label="Minéral">{{ name }}</th><td data-label="Distinction">{{ how }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
+
+    <section class="board">
+        <h3 class="board-title">Élimination, minéral par minéral</h3>
+        <ul class="board-list">
+        {% for r in board %}
+            <li class="chip st-{{ r.state }}"><b>{{ r.entry.name }}</b><span>{% if r.state == 'out' %}écarté{% elif r.state == 'doubt' %}douteux{% else %}possible{% endif %} · {{ r.percent }}%</span></li>
+        {% endfor %}
+        </ul>
+    </section>
+
+    <section class="panel">
+        <h2>Vos observations face à {{ e.name }}</h2>
+        <table class="evidence">
+            <thead><tr><th>Propriété</th><th>Vous avez observé</th><th>Attendu</th><th>Verdict</th></tr></thead>
+            <tbody>
+            {% for c in outcome.checks %}
+            <tr class="st-{{ c.status }}">
+                <th scope="row" data-label="Propriété">{{ c.label }}</th>
+                <td data-label="Observé">{{ c.observed }}</td>
+                <td data-label="Attendu">{{ c.expected }}</td>
+                <td data-label="Verdict">
+                    {% if c.status == 'match' %}<span class="pill match">Concorde</span>
+                    {% elif c.status == 'partial' %}<span class="pill partial">Proche</span>
+                    {% elif c.status == 'mismatch' %}<span class="pill mismatch">Ne correspond pas</span>
+                    {% else %}<span class="pill skipped">Peu important</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel-row">
+        <div class="panel"><h2>À retenir</h2><p>{{ e.tip }}</p></div>
+        <div class="panel"><h2>Ne pas confondre avec</h2><p>{{ e.lookalikes }}</p></div>
+    </section>
+
+    <div class="cta-row">
+        <a class="btn primary" href="{{ url_for('thin_detail', identifier=e.id) }}">Voir la fiche complète</a>
+    </div>
+
+    {% if outcome.others %}
+    <section>
+        <h2 class="section-title">Autres candidats</h2>
+        <div class="alt-grid">
+            {% for o in outcome.others %}
+            <article class="alt">
+                <div class="alt-head"><h3>{{ o.entry.name }}</h3><span class="alt-score"><b>{{ o.confidence }}</b>%</span></div>
+                <span class="meter small"><i style="width:{{ o.confidence }}%"></i></span>
+                <p class="alt-line">{{ o.entry.tip }}</p>
+                <a class="link" href="{{ url_for('thin_detail', identifier=o.entry.id) }}">Voir la fiche</a>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</main>
+{% endblock %}

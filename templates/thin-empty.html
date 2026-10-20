@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Pas assez d'informations{% endblock %}
+{% block content %}
+<main class="wrap results">
+    <a class="back" href="{{ url_for('thin_form') }}">Nouvelle identification</a>
+    <section class="panel">
+        <h1 style="font-size:clamp(1.6rem,4vw,2.4rem);">Pas assez d'informations</h1>
+        <p class="lead">Vous avez passé toutes les questions avec « Je ne sais pas », donc il est impossible de proposer un minéral.</p>
+        <p class="help" style="margin-top:12px;">Regardez la lame au microscope et répondez au moins à quelques questions. Le guide explique comment observer en LPNA et en LPA.</p>
+        <div class="cta-row">
+            <a class="btn primary" href="{{ url_for('thin_form') }}">Recommencer</a>
+            <a class="btn ghost" href="{{ url_for('thin_guide') }}">Ouvrir le guide</a>
+        </div>
+    </section>
+</main>
+{% endblock %}

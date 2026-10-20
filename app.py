@@ -6,10 +6,7 @@ from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, session
 from data import MINERALS, ROCKS, QUESTION_CATALOG, expand_catalog
 import thin_data
-from thin_data import (THIN_MINERALS, THIN_QUESTIONS, THIN_SPECS, THIN_PRIORITY, THIN_MODE,
-                       THIN_MODE_LABELS, THIN_ORDER, THIN_HIDDEN_LABELS)
-
-QUESTION_CATALOG["thin"] = THIN_QUESTIONS
+import thin_engine
 
 # Expand the reference catalog once at import time. All data remains local to Vercel.
 MINERALS, ROCKS = expand_catalog(MINERALS, ROCKS)
@@ -107,8 +104,7 @@ def exact_factor(answer, expected, related=None):
     return 0.0
 
 
-ORDINAL_LEVELS = {"hardness": HARDNESS_LEVELS, "relief": thin_data.RELIEF_LEVELS,
-                  "biref": thin_data.BIREF_LEVELS, "angle": thin_data.ANGLE_LEVELS}
+ORDINAL_LEVELS = {"hardness": HARDNESS_LEVELS}
 
 
 def ordinal_factor(answer, expected, levels=None):
@@ -164,32 +160,25 @@ def build_questions(kind, selected_fields=None):
                 swatch = "conic-gradient(#c0392b, #e0b92e, #2e8b57, #2f6db5, #7b4fa1, #c0392b)"
             prepared.append({"value": value, "label": label, "hint": hint, "swatch": swatch})
         prepared.append({"value": UNKNOWN, "label": "Je ne sais pas", "hint": "Passer cette question", "swatch": None})
-        mode = THIN_MODE.get(field) if kind == "thin" else None
         questions.append({"field": field, "title": title, "help": help_text, "options": prepared,
-                          "visual": any(o["swatch"] for o in prepared),
-                          "mode": mode, "mode_label": THIN_MODE_LABELS.get(mode)})
-    if kind == "thin":  # LPNA d'abord, puis LPA
-        questions.sort(key=lambda q: THIN_ORDER.index(q["field"]))
+                          "visual": any(o["swatch"] for o in prepared)})
     return questions
 
 
 LABELS = {}
-for q in QUESTION_CATALOG["minerals"] + QUESTION_CATALOG["rocks"] + QUESTION_CATALOG["thin"]:
+for q in QUESTION_CATALOG["minerals"] + QUESTION_CATALOG["rocks"]:
     LABELS.setdefault(q[0], {})
     for value, label, *_ in q[3]:
         LABELS[q[0]][value] = label
 
-# Libellés des caractères affichés sur les fiches mais plus demandés dans le questionnaire
-for _field, _values in THIN_HIDDEN_LABELS.items():
-    LABELS.setdefault(_field, {}).update(_values)
 
 
 def candidates_for(kind):
-    return {"minerals": MINERALS, "rocks": ROCKS, "thin": THIN_MINERALS}[kind]
+    return {"minerals": MINERALS, "rocks": ROCKS}[kind]
 
 
 def specs_for(kind):
-    return {"minerals": MINERAL_SPECS, "rocks": ROCK_SPECS, "thin": THIN_SPECS}[kind]
+    return {"minerals": MINERAL_SPECS, "rocks": ROCK_SPECS}[kind]
 
 
 def candidate_by_id(kind, candidate_id):
@@ -290,7 +279,7 @@ def choose_questions(kind, purpose, count):
     """Select high-information observations locally, with a purpose-specific priority bias."""
     candidates = candidates_for(kind)
     specs = specs_for(kind)
-    priority = THIN_PRIORITY if kind == "thin" else PURPOSES[purpose]["priority"]
+    priority = PURPOSES[purpose]["priority"]
     rank = {field: i for i, field in enumerate(priority)}
     scored = []
     for field, label, weight, _ in specs:
@@ -305,10 +294,7 @@ def choose_questions(kind, purpose, count):
         score = weight * (0.6 + balance + priority_bonus)
         scored.append((score, rank.get(field, 999), field))
     scored.sort(key=lambda x: (-x[0], x[1], x[2]))
-    chosen = [field for _, _, field in scored[:max(1, min(count, len(scored)))]]
-    if kind == "thin":
-        chosen.sort(key=THIN_ORDER.index)
-    return chosen
+    return [field for _, _, field in scored[:max(1, min(count, len(scored)))]]
 
 
 def identify(kind, answers, selected_fields):
@@ -381,7 +367,7 @@ def inject_globals():
 def render_setup(kind, error=None):
     return render_template("setup.html", kind=kind, purposes=PURPOSES, error=error,
                            count_max=max(p["max"] for p in PURPOSES.values()),
-                           counts=[5, 8, 10, 12, 15, 20] if kind != "thin" else [5, 7, 10])
+                           counts=[5, 8, 10, 12, 15, 20])
 
 
 def setup_and_form(kind):
@@ -395,14 +381,11 @@ def setup_and_form(kind):
     count = max(3, min(count, PURPOSES[purpose]["max"]))
     fields = choose_questions(kind, purpose, count)
     session["geoidentify_setup"] = {"kind": kind, "purpose": purpose, "count": len(fields), "fields": fields}
-    page_title = {"minerals": "Identifier un minéral", "rocks": "Identifier une roche",
-                  "thin": "Identifier un minéral en lame mince"}[kind]
-    result_endpoint = {"minerals": "mineral_result", "rocks": "rock_result", "thin": "thin_result"}[kind]
+    page_title = {"minerals": "Identifier un minéral", "rocks": "Identifier une roche"}[kind]
+    result_endpoint = {"minerals": "mineral_result", "rocks": "rock_result"}[kind]
     return render_template("identify-form.html", kind=kind,
         page_title=page_title,
-        lead=(f"{len(fields)} questions : d'abord en LPNA (polariseur seul), puis en LPA (analyseur inséré)."
-              if kind == "thin" else
-              f"{len(fields)} questions sélectionnées pour : {PURPOSES[purpose]['label']}. Les questions sont choisies localement pour être les plus discriminantes possibles."),
+        lead=f"{len(fields)} questions sélectionnées pour : {PURPOSES[purpose]['label']}. Les questions sont choisies localement pour être les plus discriminantes possibles.",
         form_action=url_for(result_endpoint),
         submit_label="Voir le résultat", questions=build_questions(kind, fields), error=None,
         purpose_label=PURPOSES[purpose]["label"])
@@ -410,7 +393,7 @@ def setup_and_form(kind):
 
 @app.get("/")
 def home():
-    return render_template("index.html", mineral_count=len(MINERALS), rock_count=len(ROCKS), thin_count=len(THIN_MINERALS))
+    return render_template("index.html", mineral_count=len(MINERALS), rock_count=len(ROCKS), thin_count=len(thin_data.ENTRIES))
 
 
 @app.get("/search")
@@ -500,47 +483,87 @@ def not_found(_error): return render_template("error.html"), 404
 
 
 # ---------------------------------------------------------------------------
-# Lames minces (microscope polarisant)
+# Lames minces : une question par page, arrêt dès que le minéral est trouvé
 # ---------------------------------------------------------------------------
+def _thin_answers():
+    return session.get("thin_answers", {})
+
+
+def _thin_step(answers, error=None):
+    q = thin_engine.next_question(answers)
+    if q is None:
+        return redirect(url_for("thin_result"))
+    done = sum(1 for f in answers if f in thin_data.MAIN_FIELDS)
+    return render_template("thin-question.html", q=q, mode_label=thin_data.MODE_LABELS[q["mode"]],
+                           unknown=thin_data.UNKNOWN, states=thin_engine.progress(answers, q),
+                           number=done + 1, total=len(thin_data.MAIN_FIELDS), error=error,
+                           can_back=bool(answers), kind="thin",
+                           board=thin_engine.board(answers))
+
+
 @app.route("/thin/identify", methods=["GET", "POST"])
 def thin_form():
-    return setup_and_form("thin")
-
-
-@app.route("/thin/result", methods=["GET", "POST"])
-def thin_result():
-    setup = session.get("geoidentify_setup")
-    if not setup or setup.get("kind") != "thin":
+    """Démarre directement : plus d'écran de choix du nombre de questions."""
+    if request.method == "POST":  # anciens liens / formulaires
         return redirect(url_for("thin_form"))
+    session["thin_answers"] = {}
+    session["thin_order"] = []
+    return _thin_step({})
+
+
+@app.route("/thin/question", methods=["GET", "POST"])
+def thin_question():
+    answers = dict(_thin_answers())
+    order = list(session.get("thin_order", []))
     if request.method == "POST":
-        fields = setup["fields"]
-        answers = {field: request.form.get(field, UNKNOWN) for field in fields}
-        if identify("thin", answers, fields) is None:
-            return render_template("identify-form.html", kind="thin", page_title="Identifier un minéral en lame mince",
-                lead=f"{setup['count']} questions sélectionnées pour : {PURPOSES[setup['purpose']]['label']}.",
-                form_action=url_for("thin_result"), submit_label="Voir le résultat",
-                questions=build_questions("thin", fields), error="Répondez à au moins une question pour lancer l'identification.",
-                purpose_label=PURPOSES[setup['purpose']]['label']), 400
-        session["geoidentify"] = {"kind": "thin", "answers": answers, "fields": fields}
-        return redirect(url_for("thin_result"))
-    saved = session.get("geoidentify")
-    if not saved or saved.get("kind") != "thin":
+        field = request.form.get("field", "")
+        value = request.form.get("answer", "")
+        q = thin_data.QUESTION_BY_FIELD.get(field)
+        valid = {o["value"] for o in q["options"]} | {thin_data.UNKNOWN} if q else set()
+        if q is None or value not in valid:
+            return _thin_step(answers, "Choisissez une réponse pour continuer.")
+        if field not in answers:
+            order.append(field)
+        answers[field] = value
+        session["thin_answers"], session["thin_order"] = answers, order
+        return redirect(url_for("thin_question"))
+    return _thin_step(answers)
+
+
+@app.post("/thin/back")
+def thin_back():
+    answers = dict(_thin_answers())
+    order = list(session.get("thin_order", []))
+    if order:
+        answers.pop(order.pop(), None)
+    session["thin_answers"], session["thin_order"] = answers, order
+    return redirect(url_for("thin_question"))
+
+
+@app.get("/thin/result")
+def thin_result():
+    answers = _thin_answers()
+    if not answers:  # lien ouvert directement, sans questionnaire
         return redirect(url_for("thin_form"))
-    return render_template("results.html", outcome=identify("thin", saved["answers"], saved["fields"]),
-                           kind="thin", noun="minéral (lame mince)", restart_url=url_for("thin_form"))
+    outcome = thin_engine.evaluate(answers)
+    if outcome is None:  # tout a été passé avec « Je ne sais pas »
+        return render_template("thin-empty.html", kind="thin")
+    return render_template("thin-result.html", outcome=outcome, kind="thin", answers=answers,
+                           board=thin_engine.board(answers))
 
 
 @app.get("/thin/<int:identifier>")
 def thin_detail(identifier):
-    mineral = candidate_by_id("thin", identifier)
-    if mineral is None:
+    entry = next((e for e in thin_data.ENTRIES if e["id"] == identifier), None)
+    if entry is None:
         return render_template("error.html"), 404
-    return render_template("thin-detail.html", m=mineral, tt=thin_data)
+    members = [thin_data.ENTRY_BY_KEY[k] for k in entry.get("members", [])]
+    return render_template("thin-detail.html", m=entry, members=members, tt=thin_data, kind="thin")
 
 
 @app.get("/thin/guide")
 def thin_guide():
-    return render_template("thin-guide.html", tt=thin_data, count=len(THIN_MINERALS))
+    return render_template("thin-guide.html", tt=thin_data, count=len(thin_data.ENTRIES), kind="thin")
 
 
 if __name__ == "__main__":

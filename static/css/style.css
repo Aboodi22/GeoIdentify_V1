@@ -410,3 +410,29 @@ html.js .fallback-submit { display: none; }
 }
 .mode-badge.mode-lpna { background: var(--accent-soft); color: var(--accent-dark); }
 .mode-badge.mode-lpa { background: var(--ochre-soft); color: #7a4a14; border-color: #dfc0a3; }
+
+/* ---------- Lame mince : une question par page ---------- */
+.thin-step .progress { margin-bottom: 4px; }
+.thin-title { margin: 10px 0 6px; font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; }
+.thin-step .help { margin-bottom: 18px; }
+button.opt-btn {
+    width: 100%; text-align: left; font: inherit; color: inherit;
+}
+.thin-step .wizard-nav { margin-top: 18px; }
+.verdict.thin-level-sure, .verdict.thin-level-group { border-left: 6px solid var(--accent); }
+.verdict.thin-level-probable { border-left: 6px solid #c08a3e; }
+.verdict.thin-level-unsure, .verdict.thin-level-none { border-left: 6px solid var(--bad); }
+
+/* Tableau d'élimination (lames minces) */
+.board { margin: 0 0 18px; }
+.board-title { margin: 0 0 8px; font-size: 1rem; }
+.board-title small { font-weight: 400; color: #6b7280; margin-left: 6px; }
+.board-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.chip { border: 1px solid #cfd6cf; border-radius: 10px; padding: 8px 10px; background: #fff; display: flex; flex-direction: column; gap: 2px; transition: opacity .25s, background .25s; }
+.chip b { font-size: .92rem; }
+.chip span { font-size: .75rem; color: #4b5563; }
+.chip.st-ok { border-color: #5a9b6a; background: #eef7f0; }
+.chip.st-doubt { border-color: #d9a441; background: #fdf6e3; }
+.chip.st-out { opacity: .45; background: #f1f1f1; }
+.chip.st-out b { text-decoration: line-through; }
+@media (max-width: 760px) { .board-list { grid-template-columns: repeat(2, 1fr); } }
