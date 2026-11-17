@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ r.name }} : roche en lame mince{% endblock %}
+{% block content %}
+<main class="wrap detail-wrap">
+    <a class="back" href="{{ url_for('rlame_form') }}">Identification d'une roche en lame mince</a>
+    <h1>{{ r.name }}</h1>
+    <p class="tag">{{ rd.FAMILY_LABEL[r.family] }}</p>
+    <p class="lead">{{ r.description }}</p>
+
+    <section class="panel">
+        <h2>Critères d'identification</h2>
+        <table class="props">
+            {% set p = r.profile %}
+            {% if r.family == 'mag' %}
+            <tr><th>Gisement</th><td>{% for v in p.setting %}{{ rd.option_label('setting', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            <tr><th>Texture</th><td>{% for v in p.mtex %}{{ rd.option_label('mtex', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            {% if p.fdom %}<tr><th>Feldspath dominant</th><td>{% for v in p.fdom %}{{ rd.option_label('fdom', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>{% endif %}
+            {% else %}
+            <tr><th>Nature chimique de départ</th><td>{% for v in p.chem %}{{ rd.option_label('chem', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            <tr><th>Roche de départ</th><td>{% for v in p.proto %}{{ rd.option_label('proto', v) }}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>
+            <tr><th>Métamorphisme</th><td>{% for v in p.mtype %}{{ rd.option_label('mtype', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            <tr><th>Texture</th><td>{% for v in p.ttex %}{{ rd.option_label('ttex', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            {% endif %}
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Minéraux attendus</h2>
+        <table class="props">
+            {% for k, lv in r.minerals.items() if lv[0] != 'abs' %}
+            <tr><th>{{ rd.MINERALS[k][0] }}</th><td>{% for a in lv %}{{ rd.LEVEL_LABEL[a] }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            {% endfor %}
+        </table>
+        <p class="help" style="margin-top:10px;">Les autres minéraux de la liste sont absents ou accessoires.</p>
+    </section>
+
+    <section class="panel-row">
+        <div class="panel"><h2>À retenir</h2><p>{{ r.tip }}</p></div>
+        <div class="panel"><h2>Ne pas confondre avec</h2><p>{{ r.lookalikes or '—' }}</p></div>
+    </section>
+    {% if r.examples %}<section class="panel"><h2>Exemples</h2><p>{{ r.examples }}</p></section>{% endif %}
+</main>
+{% endblock %}

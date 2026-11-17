@@ -5,6 +5,7 @@ import difflib
 from collections import Counter
 from flask import Flask, render_template, request, redirect, url_for, session
 from data import MINERALS, ROCKS, QUESTION_CATALOG, expand_catalog
+import rlame_data, rlame_engine
 import thin_data
 import thin_engine
 
@@ -393,7 +394,8 @@ def setup_and_form(kind):
 
 @app.get("/")
 def home():
-    return render_template("index.html", mineral_count=len(MINERALS), rock_count=len(ROCKS), thin_count=len(thin_data.ENTRIES))
+    return render_template("index.html", mineral_count=len(MINERALS), rock_count=len(ROCKS), thin_count=len(thin_data.ENTRIES),
+                           rlame_count=len(rlame_data.ROCKS))
 
 
 @app.get("/search")
@@ -564,6 +566,102 @@ def thin_detail(identifier):
 @app.get("/thin/guide")
 def thin_guide():
     return render_template("thin-guide.html", tt=thin_data, count=len(thin_data.ENTRIES), kind="thin")
+
+# ---------------------------------------------------------------------------
+# Roche en lame mince (magmatique / métamorphique)
+# ---------------------------------------------------------------------------
+def _rl_answers():
+    return session.get("rl_answers", {})
+
+
+def _rl_step(answers, error=None):
+    step = rlame_engine.next_step(answers)
+    if step is None:
+        return redirect(url_for("rlame_result"))
+    states = rlame_engine.progress(answers, step)
+    common = dict(step=step, states=states, error=error, can_back=bool(answers), kind="rlame",
+                  board=rlame_engine.board(answers) if answers.get("family") else None,
+                  number=sum(1 for s in rlame_engine.steps(answers) if s != step and rlame_engine._step_done(s, answers)) + 1,
+                  total=len(states), unknown=rlame_data.UNKNOWN)
+    if step == "minerals":
+        keys = rlame_engine.mineral_keys(answers)
+        return render_template("rlame-minerals.html", minerals=[(k,) + rlame_data.MINERALS[k] for k in keys],
+                               levels=rlame_data.LEVELS, **common)
+    q = rlame_data.QUESTIONS[step]
+    return render_template("rlame-question.html", q=q, field=step, options=rlame_data.options_for(step, answers), **common)
+
+
+@app.route("/rlame/identify", methods=["GET", "POST"])
+def rlame_form():
+    session["rl_answers"], session["rl_order"] = {}, []
+    return _rl_step({})
+
+
+@app.route("/rlame/question", methods=["GET", "POST"])
+def rlame_question():
+    answers = dict(_rl_answers())
+    order = list(session.get("rl_order", []))
+    if request.method == "POST":
+        field = request.form.get("field", "")
+        if field == "minerals":
+            keys = rlame_engine.mineral_keys(answers)
+            valid = {k for k, _ in rlame_data.LEVELS}
+            for k in keys:
+                v = request.form.get("min_" + k, "abs")
+                answers["min_" + k] = v if v in valid else "abs"
+            order.append("minerals")
+        else:
+            value = request.form.get("answer", "")
+            q = rlame_data.QUESTIONS.get(field)
+            valid = {o["value"] for o in rlame_data.options_for(field, answers)} | {rlame_data.UNKNOWN} if q else set()
+            if q is None or value not in valid:
+                return _rl_step(answers, "Choisissez une réponse pour continuer.")
+            if field not in answers:
+                order.append(field)
+            answers[field] = value
+            if field == "family":  # changer de famille repart de zéro
+                answers = {"family": value}
+                order = ["family"]
+        session["rl_answers"], session["rl_order"] = answers, order
+        return redirect(url_for("rlame_question"))
+    return _rl_step(answers)
+
+
+@app.post("/rlame/back")
+def rlame_back():
+    answers = dict(_rl_answers())
+    order = list(session.get("rl_order", []))
+    if order:
+        last = order.pop()
+        if last == "minerals":
+            for k in [k for k in answers if k.startswith("min_")]:
+                answers.pop(k)
+        else:
+            answers.pop(last, None)
+        if last == "family":
+            answers = {}
+    session["rl_answers"], session["rl_order"] = answers, order
+    return redirect(url_for("rlame_question"))
+
+
+@app.get("/rlame/result")
+def rlame_result():
+    answers = _rl_answers()
+    if not answers:
+        return redirect(url_for("rlame_form"))
+    outcome = rlame_engine.evaluate(answers)
+    if outcome is None:
+        return render_template("thin-empty.html", kind="rlame")
+    return render_template("rlame-result.html", outcome=outcome, kind="rlame", board=rlame_engine.board(answers))
+
+
+@app.get("/rlame/<int:identifier>")
+def rlame_detail(identifier):
+    rock = rlame_data.ROCK_BY_ID.get(identifier)
+    if rock is None:
+        return render_template("error.html"), 404
+    return render_template("rlame-detail.html", r=rock, rd=rlame_data, kind="rlame")
+
 
 
 if __name__ == "__main__":

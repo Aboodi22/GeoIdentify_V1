@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Roche en lame mince : {{ q.title }}{% endblock %}
+{% block content %}
+<main class="wrap form-wrap">
+    <h1>Identifier une roche en lame mince</h1>
+    <p class="lead">Roches magmatiques et métamorphiques. Répondez avec ce que vous voyez au microscope.</p>
+    {% include "_rl_board.html" %}
+    <div class="wizard thin-step">
+        <div class="progress" aria-label="Progression">{% for st in states %}<span class="seg {{ st }}"></span>{% endfor %}</div>
+        <p class="progress-label">Étape <b>{{ number }}</b> sur {{ total }}</p>
+        {% if error %}<div class="alert" role="alert"><p>{{ error }}</p></div>{% endif %}
+        <form action="{{ url_for('rlame_question') }}" method="post">
+            <input type="hidden" name="field" value="{{ field }}">
+            <h2 class="thin-title">{{ q.title }}</h2>
+            <p class="help">{{ q.help }}</p>
+            <div class="options">
+                {% for o in options %}
+                <button class="opt opt-btn" type="submit" name="answer" value="{{ o.value }}">
+                    <span class="opt-text"><span class="opt-label">{{ o.label }}</span>{% if o.hint %}<span class="opt-hint">{{ o.hint }}</span>{% endif %}</span>
+                </button>
+                {% endfor %}
+                {% if field != 'family' %}
+                <button class="opt opt-btn is-unknown" type="submit" name="answer" value="{{ unknown }}">
+                    <span class="opt-text"><span class="opt-label">Je ne sais pas</span><span class="opt-hint">Passer cette question</span></span>
+                </button>
+                {% endif %}
+            </div>
+        </form>
+        {% if can_back %}
+        <form action="{{ url_for('rlame_back') }}" method="post" class="wizard-nav"><button type="submit" class="btn ghost">Étape précédente</button></form>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

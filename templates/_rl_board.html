@@ -1,0 +1,13 @@
+{% if board %}
+<section class="board" aria-label="Roches encore possibles">
+    <h3 class="board-title">Roches possibles <small>à chaque réponse, certaines sont écartées</small></h3>
+    <ul class="board-list">
+    {% for r in board %}
+        <li class="chip st-{{ r.state }}">
+            <b>{{ r.entry.name }}</b>
+            <span>{% if r.state == 'out' %}écartée{% elif r.state == 'doubt' %}douteuse{% else %}possible{% endif %}{% if r.percent is not none %} · {{ r.percent }}%{% endif %}</span>
+        </li>
+    {% endfor %}
+    </ul>
+</section>
+{% endif %}

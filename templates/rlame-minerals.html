@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Roche en lame mince : minéraux{% endblock %}
+{% block content %}
+<main class="wrap form-wrap">
+    <h1>Identifier une roche en lame mince</h1>
+    {% include "_rl_board.html" %}
+    <div class="wizard thin-step">
+        <div class="progress" aria-label="Progression">{% for st in states %}<span class="seg {{ st }}"></span>{% endfor %}</div>
+        <p class="progress-label">Étape <b>{{ number }}</b> sur {{ total }}</p>
+        <form action="{{ url_for('rlame_question') }}" method="post">
+            <input type="hidden" name="field" value="minerals">
+            <h2 class="thin-title">Quels minéraux voyez-vous, et en quelle quantité ?</h2>
+            <p class="help">Abondant : plus de 10 % de la lame. Accessoire : moins de 10 %. Laissez « Absent » pour les minéraux que vous ne voyez pas.</p>
+            <div class="min-list">
+                {% for key, name, hint in minerals %}
+                <div class="min-row">
+                    <div class="min-name"><b>{{ name }}</b><small>{{ hint }}</small></div>
+                    <div class="min-levels" role="radiogroup" aria-label="{{ name }}">
+                        {% for val, label in levels %}
+                        <label class="min-pill"><input type="radio" name="min_{{ key }}" value="{{ val }}"{% if val == 'abs' %} checked{% endif %}><span>{{ label }}</span></label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="btn primary" type="submit" style="margin-top:16px;">Voir le résultat</button>
+        </form>
+        {% if can_back %}
+        <form action="{{ url_for('rlame_back') }}" method="post" class="wizard-nav"><button type="submit" class="btn ghost">Étape précédente</button></form>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

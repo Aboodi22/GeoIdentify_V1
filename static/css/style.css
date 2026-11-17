@@ -436,3 +436,15 @@ button.opt-btn {
 .chip.st-out { opacity: .45; background: #f1f1f1; }
 .chip.st-out b { text-decoration: line-through; }
 @media (max-width: 760px) { .board-list { grid-template-columns: repeat(2, 1fr); } }
+
+/* Roche en lame mince */
+@media (min-width: 981px) { .choices { grid-template-columns: repeat(4, 1fr); } }
+.min-list { display: flex; flex-direction: column; gap: 8px; }
+.min-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 1px solid #d8ded8; border-radius: 10px; padding: 8px 12px; background: #fff; flex-wrap: wrap; }
+.min-name { display: flex; flex-direction: column; min-width: 190px; }
+.min-name small { color: #6b7280; font-size: .78rem; }
+.min-levels { display: flex; gap: 6px; }
+.min-pill input { position: absolute; opacity: 0; pointer-events: none; }
+.min-pill span { display: inline-block; padding: 6px 12px; border: 1px solid #c9d1c9; border-radius: 999px; font-size: .85rem; cursor: pointer; background: #f6f8f6; }
+.min-pill input:checked + span { background: #0d6f57; border-color: #0d6f57; color: #fff; }
+.min-pill input:focus-visible + span { outline: 2px solid #0d6f57; outline-offset: 2px; }
