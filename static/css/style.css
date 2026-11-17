@@ -448,3 +448,12 @@ button.opt-btn {
 .min-pill span { display: inline-block; padding: 6px 12px; border: 1px solid #c9d1c9; border-radius: 999px; font-size: .85rem; cursor: pointer; background: #f6f8f6; }
 .min-pill input:checked + span { background: #0d6f57; border-color: #0d6f57; color: #fff; }
 .min-pill input:focus-visible + span { outline: 2px solid #0d6f57; outline-offset: 2px; }
+
+/* Schémas (textures, gisements, orientation) */
+.options.is-drawn { grid-template-columns: 1fr 1fr; }
+.options.is-drawn .opt-btn { display: flex; align-items: center; gap: 12px; text-align: left; }
+.opt-img { flex: 0 0 96px; width: 96px; height: 96px; border-radius: 10px; object-fit: cover; background: #fff; }
+.tex-row { display: flex; flex-wrap: wrap; gap: 16px; }
+.tex-row figure { margin: 0; text-align: center; font-size: .8rem; max-width: 130px; }
+.min-levels { flex-wrap: wrap; }
+@media (max-width: 760px) { .options.is-drawn { grid-template-columns: 1fr; } }

@@ -20,6 +20,13 @@
         </div>
     </section>
 
+    <section class="panel">
+        <h2>Ce que la lame nous apprend</h2>
+        <table class="props">
+            {% for label, text in outcome.deduced %}<tr><th>{{ label }}</th><td>{{ text }}</td></tr>{% endfor %}
+        </table>
+    </section>
+
     <section class="board">
         <h3 class="board-title">Élimination, roche par roche</h3>
         <ul class="board-list">

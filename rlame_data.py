@@ -15,13 +15,14 @@ Valeurs simplifiées à partir des tableaux classiques de pétrographie : à vé
 UNKNOWN = "unknown"
 
 
-def _o(value, label, hint=None):
-    return {"value": value, "label": label, "hint": hint}
+def _o(value, label, hint=None, img=None):
+    return {"value": value, "label": label, "hint": hint, "img": ("img/rlame/%s.svg" % img) if img else None}
 
 
-LEVELS = [("abs", "Absent"), ("acc", "Accessoire"), ("abd", "Abondant")]
+LEVELS = [("abs", "Absent"), ("acc", "Accessoire"), ("abd", "Abondant"), ("dom", "Dominant")]
 LEVEL_LABEL = dict(LEVELS)
-LEVEL_ORDER = ["abs", "acc", "abd"]
+LEVEL_ORDER = ["abs", "acc", "abd", "dom"]
+LEVEL_RANK = {"abs": 0, "acc": 1, "abd": 2, "dom": 2}  # abondant et dominant comptent pour un même cran
 
 # ---------------------------------------------------------------------------
 # Questions à choix unique
@@ -37,28 +38,28 @@ QUESTIONS = {
         ],
     },
     # ---------------- magmatique ----------------
-    "setting": {
-        "title": "Quel est le mode de gisement de la roche ?",
-        "help": "Il se déduit de la taille des cristaux et du terrain.",
-        "weight": 14, "short": "Gisement",
-        "options": [
-            _o("pluto", "Plutonique", "Refroidissement lent en profondeur : gros cristaux visibles"),
-            _o("filon", "Filonienne", "Refroidissement moyen dans un filon ou un dyke : cristaux petits"),
-            _o("volc", "Volcanique", "Refroidissement rapide en surface : microlites et verre"),
-        ],
-    },
     "mtex": {
         "title": "Quelle est la texture de la roche ?",
-        "help": "Regardez la taille et l'organisation des cristaux entre polariseurs croisés.",
+        "help": "Comparez ce que vous voyez à chaque schéma : taille et organisation des cristaux.",
         "weight": 22, "short": "Texture",
         "options": [
-            _o("grenue", "Grenue ou microgrenue", "Tous les cristaux sont visibles et de taille proche, sans pâte"),
-            _o("grenue_porph", "Grenue porphyrique", "Gros cristaux dans un fond de cristaux plus petits, tous visibles"),
-            _o("micro_porph", "Microlitique porphyrique", "Phénocristaux dans une pâte de microlites (petites baguettes) et de verre"),
-            _o("ophitique", "Microgrenue ophitique", "Lattes de plagioclase enfermées dans de grands pyroxènes"),
-            _o("intersertale", "Intersertale", "Lattes de plagioclase, avec du verre ou de la chlorite entre elles"),
-            _o("perlitique", "Perlitique", "Verre craquelé en petites fissures arrondies (comme des perles)"),
-            _o("pyro", "Pyroclastique", "Fragments de cristaux, de verre et de ponces cimentés"),
+            _o("grenue", "Grenue ou microgrenue", "Tous les cristaux sont visibles, de taille proche, sans pâte entre eux", "grenue"),
+            _o("grenue_porph", "Grenue porphyrique", "Quelques gros cristaux dans un fond de cristaux plus petits, tous visibles", "grenue_porph"),
+            _o("micro_porph", "Microlitique porphyrique", "Gros cristaux (phénocristaux) dans une pâte de petites baguettes (microlites) et de verre", "micro_porph"),
+            _o("ophitique", "Microgrenue ophitique", "Lattes de plagioclase enfermées dans de grands cristaux de pyroxène", "ophitique"),
+            _o("intersertale", "Intersertale", "Lattes de plagioclase entrecroisées, avec du verre ou de la chlorite entre elles", "intersertale"),
+            _o("perlitique", "Perlitique", "Verre craquelé en fissures arrondies, comme des perles", "perlitique"),
+            _o("pyro", "Pyroclastique", "Fragments anguleux de cristaux, de verre et de ponces cimentés", "pyro"),
+        ],
+    },
+    "setting": {
+        "title": "Où la roche s'est-elle formée ?",
+        "help": "La texture dépend de la vitesse de refroidissement : lent en profondeur (gros cristaux), moyen dans un filon, rapide en surface (microlites et verre). Seuls les gisements possibles pour votre texture sont proposés.",
+        "weight": 14, "short": "Gisement",
+        "options": [
+            _o("pluto", "Plutonique", "Dans une chambre magmatique profonde", "g_pluto"),
+            _o("filon", "Filonienne", "Dans une fracture (filon, dyke) à faible profondeur", "g_filon"),
+            _o("volc", "Volcanique", "En surface, lors d'une éruption", "g_volc"),
         ],
     },
     "fdom": {
@@ -72,52 +73,40 @@ QUESTIONS = {
         ],
     },
     # ---------------- métamorphique ----------------
-    "chem": {
-        "title": "Quelle est la nature chimique de la roche de départ ?",
-        "help": "Elle dépend de la composition de la roche avant métamorphisme.",
-        "weight": 8, "short": "Nature chimique",
-        "options": [
-            _o("sil", "Siliceuse", "Riche en silice (grès à quartz)"),
-            _o("silal", "Silico-alumineuse", "Silice et alumine (argiles, grauwackes, granites)"),
-            _o("ferro", "Ferro-magnésienne", "Riche en fer et magnésium (basalte, gabbro)"),
-            _o("calc", "Calcique", "Riche en calcium (calcaire, marne)"),
-        ],
-    },
-    "proto": {
-        "title": "Quelle est la roche de départ ?",
-        "help": "La roche d'origine, avant la transformation.",
-        "weight": 16, "short": "Roche de départ",
-        "options_by": {
-            "sil": [_o("gres", "Grès", "Grains de quartz cimentés")],
-            "silal": [
-                _o("shale", "Shale (argilite, pélite)", "Roche argileuse fine"),
-                _o("grauwacke", "Grauwacke", "Grès sale : quartz, feldspath, argile, fragments de roches"),
-                _o("arkose", "Arkose", "Grès riche en feldspath"),
-                _o("granite", "Granite", "Roche magmatique à quartz, feldspaths et micas"),
-            ],
-            "ferro": [_o("basalte", "Basalte", "Roche volcanique sombre"), _o("gabbro", "Gabbro", "Équivalent plutonique du basalte")],
-            "calc": [_o("calcaire", "Calcaire", "Carbonate de calcium"), _o("marne", "Marne", "Calcaire mélangé à de l'argile")],
-        },
-    },
-    "mtype": {
-        "title": "Quel type de métamorphisme ?",
-        "help": "Régional : grandes zones (chaînes de montagnes). De contact : autour d'une intrusion magmatique.",
-        "weight": 12, "short": "Métamorphisme",
-        "options": [
-            _o("regional", "Régional", "Pression et température, foliation fréquente"),
-            _o("contact", "De contact", "Chaleur d'une intrusion, pas de foliation nette"),
-        ],
-    },
     "ttex": {
-        "title": "Quelle est la texture métamorphique ?",
-        "help": "Observez l'organisation des cristaux.",
+        "title": "Quelle est la texture de la roche ?",
+        "help": "Comparez ce que vous voyez à chaque schéma.",
         "weight": 20, "short": "Texture",
         "options": [
-            _o("porphyroblastique", "Porphyroblastique", "Gros cristaux (grenat, staurotide, andalousite...) dans une matrice fine"),
-            _o("lepidoblastique", "Lépidoblastique", "Micas ou chlorite alignés : schistosité"),
-            _o("granoblastique", "Granoblastique", "Grains égaux en mosaïque, sans orientation"),
+            _o("porphyroblastique", "Porphyroblastique", "De gros cristaux (grenat, staurotide, andalousite...) dans une matrice fine", "porphyroblastique"),
+            _o("lepidoblastique", "Lépidoblastique", "Micas ou chlorite en lamelles alignées", "lepidoblastique"),
+            _o("granoblastique", "Granoblastique", "Grains égaux en mosaïque, joints à 120°, sans orientation", "granoblastique"),
         ],
     },
+    "orient": {
+        "title": "Les cristaux sont-ils orientés dans une même direction ?",
+        "help": "Orientés (micas, amphiboles, cristaux allongés alignés) : la roche a subi une pression, c'est un métamorphisme régional. Non orientés (mosaïque, cristaux dans tous les sens) : la roche a surtout été chauffée par un magma, c'est un métamorphisme de contact.",
+        "weight": 16, "short": "Orientation des cristaux",
+        "options": [
+            _o("oriented", "Oui, orientés", "Indice d'un métamorphisme régional", "orient_oui"),
+            _o("random", "Non, dans tous les sens", "Indice d'un métamorphisme de contact", "orient_non"),
+        ],
+    },
+    "foliation": {
+        "title": "Quel type de foliation voyez-vous ?",
+        "help": "La schistosité est fine et serrée (roches peu métamorphisées). La foliation en bandes sépare des lits clairs (quartz, feldspath) et sombres (micas, amphiboles).",
+        "weight": 14, "short": "Foliation",
+        "options": [
+            _o("schist", "Schistosité", "Plans fins et serrés de micas ou de chlorite", "foliation_schiste"),
+            _o("gneiss", "Foliation en bandes", "Lits clairs et lits sombres alternés (gneissique)", "foliation_gneiss"),
+        ],
+    },
+}
+
+# Gisements possibles selon la texture (la texture fixe la vitesse de refroidissement)
+TEXTURE_SETTINGS = {
+    "grenue": ["pluto", "filon"], "grenue_porph": ["pluto", "filon"], "micro_porph": ["volc", "filon"],
+    "ophitique": ["filon", "pluto"], "intersertale": ["volc", "filon"], "perlitique": ["volc"], "pyro": ["volc"],
 }
 
 # ---------------------------------------------------------------------------
@@ -321,6 +310,28 @@ ROCKS = [
           "quartz": ["acc", "abs"]}, key_minerals=["pyroxene", "plagio"], lookalikes="Amphibolite (régionale).", examples=""),
 ]
 
+
+# Orientation des cristaux et foliation (métamorphiques) : (orient, foliation)
+META_ORIENT = {
+    "quartzite": (["random", "oriented"], None), "phyllade": (["oriented"], ["schist"]),
+    "micaschiste": (["oriented"], ["schist"]), "gneiss": (["oriented"], ["gneiss", "schist"]),
+    "schiste_tachete": (["oriented", "random"], ["schist"]), "corneenne_pelitique": (["random"], None),
+    "marbre": (["random", "oriented"], None), "skarn": (["random"], None), "calcschiste": (["oriented"], ["schist"]),
+    "schiste_vert": (["oriented"], ["schist"]), "amphibolite": (["oriented", "random"], ["gneiss", "schist"]),
+    "schiste_bleu": (["oriented"], ["schist"]), "eclogite": (["random", "oriented"], ["gneiss"]),
+    "corneenne_basique": (["random"], None),
+}
+for _k, (_o_, _f_) in META_ORIENT.items():
+    _p = next(r for r in ROCKS if r["key"] == _k)["profile"]
+    _p["orient"], _p["foliation"] = _o_, _f_
+
+# Minéraux qui dominent nettement dans la roche (« dominant » en premier choix)
+DOMINANT = {("quartzite", "quartz"): ["dom", "abd"], ("marbre", "calcite"): ["dom", "abd"], ("obsidienne", "verre"): ["dom", "abd"],
+            ("peridotite", "olivine"): ["dom", "abd"], ("syenite", "orthose"): ["dom", "abd"], ("trachyte", "orthose"): ["dom", "abd"],
+            ("amphibolite", "hornblende"): ["abd", "dom"], ("schiste_bleu", "glaucophane"): ["abd", "dom"]}
+for (_r_, _m_), _lv in DOMINANT.items():
+    next(r for r in ROCKS if r["key"] == _r_)["minerals"][_m_] = _lv
+
 for i, r in enumerate(ROCKS, start=1):
     r["id"] = i
 ROCK_BY_KEY = {r["key"]: r for r in ROCKS}
@@ -329,19 +340,32 @@ ROCK_BY_ID = {r["id"]: r for r in ROCKS}
 
 def options_for(field, answers):
     q = QUESTIONS[field]
-    if field == "proto":
-        by = q["options_by"]
-        return by.get(answers.get("chem")) or [o for lst in by.values() for o in lst]
+    if field == "setting":
+        ok = TEXTURE_SETTINGS.get(answers.get("mtex"))
+        return [o for o in q["options"] if not ok or o["value"] in ok]
     return q["options"]
 
 
+# libellés des champs qui ne sont plus des questions (affichage des fiches)
+EXTRA_LABELS = {
+    "chem": {"sil": "Siliceuse", "silal": "Silico-alumineuse", "ferro": "Ferro-magnésienne", "calc": "Calcique"},
+    "proto": {"gres": "Grès", "shale": "Shale (argilite)", "grauwacke": "Grauwacke", "arkose": "Arkose", "granite": "Granite",
+              "basalte": "Basalte", "gabbro": "Gabbro", "calcaire": "Calcaire", "marne": "Marne"},
+    "mtype": {"regional": "Régional", "contact": "De contact"},
+}
+
+
 def option_label(field, value, answers=None):
-    q = QUESTIONS[field]
-    if field == "proto":
-        pool = [o for lst in q["options_by"].values() for o in lst]
-    else:
-        pool = q["options"]
-    for o in pool:
+    if field in EXTRA_LABELS:
+        return EXTRA_LABELS[field].get(value, value)
+    for o in QUESTIONS[field]["options"]:
         if o["value"] == value:
             return o["label"]
     return value
+
+
+def option_img(field, value):
+    for o in QUESTIONS.get(field, {}).get("options", []):
+        if o["value"] == value:
+            return o.get("img")
+    return None

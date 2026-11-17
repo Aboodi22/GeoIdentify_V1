@@ -13,9 +13,10 @@
             <input type="hidden" name="field" value="{{ field }}">
             <h2 class="thin-title">{{ q.title }}</h2>
             <p class="help">{{ q.help }}</p>
-            <div class="options">
+            <div class="options{% if options|selectattr('img')|list %} is-drawn{% endif %}">
                 {% for o in options %}
                 <button class="opt opt-btn" type="submit" name="answer" value="{{ o.value }}">
+                    {% if o.img %}<img class="opt-img" src="{{ url_for('static', filename=o.img) }}" alt="Schéma : {{ o.label }}" width="96" height="96">{% endif %}
                     <span class="opt-text"><span class="opt-label">{{ o.label }}</span>{% if o.hint %}<span class="opt-hint">{{ o.hint }}</span>{% endif %}</span>
                 </button>
                 {% endfor %}

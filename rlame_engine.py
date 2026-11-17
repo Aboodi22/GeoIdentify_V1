@@ -1,8 +1,8 @@
 """Moteur « roche en lame mince » : étapes, score, pourcentage et tableau d'élimination."""
 import math
 
-from rlame_data import (QUESTIONS, MINERALS, MINERALS_BY_FAMILY, ROCKS, ROCK_BY_KEY, UNKNOWN,
-                        LEVEL_ORDER, LEVEL_LABEL, DEFAULT_LEVELS, FAMILY_LABEL, options_for, option_label)
+from rlame_data import (QUESTIONS, MINERALS, MINERALS_BY_FAMILY, ROCKS, ROCK_BY_KEY, UNKNOWN, TEXTURE_SETTINGS,
+                        LEVEL_RANK, LEVEL_LABEL, DEFAULT_LEVELS, FAMILY_LABEL, options_for, option_label)
 
 SHARPNESS = 0.12
 NEUTRAL = 0.6          # critère sans importance pour cette roche
@@ -11,19 +11,32 @@ ADJACENT = 0.35        # minéral : un cran d'écart (accessoire au lieu d'abond
 PENALTY = 0.35
 MIN_PENALTY = 0.5
 
-SINGLE_FIELDS = ("setting", "mtex", "fdom", "chem", "proto", "mtype", "ttex")
+SINGLE_FIELDS = ("mtex", "setting", "fdom", "ttex", "orient", "foliation")
 
 
 # ---------------------------------------------------------------- étapes
+def forced_setting(answers):
+    """Si la texture n'autorise qu'un seul gisement, il est déduit sans poser la question."""
+    ok = TEXTURE_SETTINGS.get(answers.get("mtex"))
+    return ok[0] if ok and len(ok) == 1 else None
+
+
 def steps(answers):
     fam = answers.get("family")
     if fam == "mag":
-        st = ["family", "setting", "mtex", "minerals"]
+        st = ["family", "mtex"]
+        if not (answers.get("mtex") in TEXTURE_SETTINGS and forced_setting(answers)):
+            st.append("setting")
+        st.append("minerals")
         if answers.get("min_orthose", "abs") != "abs" and answers.get("min_plagio", "abs") != "abs":
-            st.append("fdom")  # on ne demande quel feldspath domine que si les deux sont présents
+            st.append("fdom")  # seulement si les deux feldspaths sont présents
         return st
     if fam == "meta":
-        return ["family", "chem", "proto", "mtype", "ttex", "minerals"]
+        st = ["family", "ttex", "orient"]
+        if answers.get("orient") == "oriented":
+            st.append("foliation")
+        st.append("minerals")
+        return st
     return ["family"]
 
 
@@ -73,7 +86,7 @@ def _single(rock, field, value):
 def _mineral_weight(rock, key):
     if key in rock["key_minerals"]:
         return 14
-    return 9 if key in rock["minerals"] else 6
+    return 9  # même poids pour tous les autres minéraux : lister un minéral ne doit pas donner d'avantage
 
 
 def _mineral(rock, key, value):
@@ -82,7 +95,10 @@ def _mineral(rock, key, value):
         return 1.0, "match"
     if value in acc:
         return OTHER_ACCEPTED, "partial"
-    dist = min(abs(LEVEL_ORDER.index(value) - LEVEL_ORDER.index(a)) for a in acc)
+    rank = LEVEL_RANK[value]
+    if rank == 2 and any(LEVEL_RANK[a] == 2 for a in acc):  # abondant et dominant : même cran
+        return 0.9, "match"
+    dist = min(abs(rank - LEVEL_RANK[a]) for a in acc)
     if dist == 1:
         return ADJACENT, "partial"
     return 0.0, "mismatch"
@@ -90,6 +106,9 @@ def _mineral(rock, key, value):
 
 def _facts(answers):
     singles = {f: v for f, v in answers.items() if f in SINGLE_FIELDS and v != UNKNOWN}
+    forced = forced_setting(answers)
+    if forced and "setting" not in singles:
+        singles["setting"] = forced
     mins = {k[4:]: v for k, v in answers.items() if k.startswith("min_") and k[4:] in MINERALS}
     return singles, mins
 
@@ -193,6 +212,18 @@ def evaluate(answers):
     others = [{"entry": r, "confidence": round(probs[r["key"]] * 100)} for r in ranked[1:4]]
     second_conf = others[0]["confidence"] if others else 0
     level, verdict = _verdict(conf, conf - second_conf, best["name"], second["name"] if second else None, second_conf)
-    return {"entry": best, "confidence": conf, "level": level, "verdict": verdict, "checks": _checks(best, answers),
+    prof = best["profile"]
+    lab = lambda f, vals: " ou ".join(option_label(f, v) for v in vals)
+    if fam == "mag":
+        deduced = [("Gisement", lab("setting", prof["setting"])), ("Texture", lab("mtex", prof["mtex"]))]
+    else:
+        deduced = [("Roche de départ probable", ", ".join(option_label("proto", v) for v in prof["proto"])),
+                   ("Nature chimique de départ", lab("chem", prof["chem"])),
+                   ("Métamorphisme", lab("mtype", prof["mtype"]))]
+        hint = {"oriented": "Cristaux orientés : plutôt un métamorphisme régional (pression).",
+                "random": "Cristaux non orientés : plutôt un métamorphisme de contact (chaleur)."}.get(answers.get("orient"))
+        if hint:
+            deduced.append(("Indice de votre observation", hint))
+    return {"entry": best, "deduced": deduced, "confidence": conf, "level": level, "verdict": verdict, "checks": _checks(best, answers),
             "others": others, "family_label": FAMILY_LABEL[fam],
             "answered_count": len(singles) + (1 if mins else 0), "total_questions": len(steps(answers)) - 1}

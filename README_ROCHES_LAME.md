@@ -1,27 +1,25 @@
-# GeoIdentify : roches en lame mince
+# GeoIdentify : roches en lame mince (v10)
 
-Séquence : **magmatique** = gisement → texture → minéraux (→ feldspath dominant si orthose et plagioclase sont présents) ; **métamorphique** = nature chimique de départ → roche de départ → métamorphisme (régional ou de contact) → texture → minéraux.
+Séquence **magmatique** : texture (schémas) → gisement (seulement les gisements compatibles avec la texture) → minéraux → feldspath dominant (si orthose et plagioclase sont présents).
+Séquence **métamorphique** : texture (schémas) → cristaux orientés ? (oui = régional, non = contact) → foliation (si orientés) → minéraux.
 
-## Textures magmatiques
+Niveaux minéraux : Absent, Accessoire (moins de 10 %), Abondant (plus de 10 %), Dominant.
 
-Grenue ou microgrenue, Grenue porphyrique, Microlitique porphyrique, Microgrenue ophitique, Intersertale, Perlitique, Pyroclastique
+## Relation texture / gisement
 
-## Nature chimique et roches de départ
-
-| Nature chimique | Roches de départ |
+| Texture | Gisements possibles |
 |---|---|
-| Siliceuse | Grès |
-| Silico-alumineuse | Shale (argilite, pélite), Grauwacke, Arkose, Granite |
-| Ferro-magnésienne | Basalte, Gabbro |
-| Calcique | Calcaire, Marne |
-
-## Textures métamorphiques
-
-Porphyroblastique, Lépidoblastique, Granoblastique
+| Grenue ou microgrenue | Plutonique, Filonienne |
+| Grenue porphyrique | Plutonique, Filonienne |
+| Microlitique porphyrique | Volcanique, Filonienne |
+| Microgrenue ophitique | Filonienne, Plutonique |
+| Intersertale | Volcanique, Filonienne |
+| Perlitique | Volcanique |
+| Pyroclastique | Volcanique |
 
 ## Roches magmatiques
 
-| Roche | Gisement | Texture | Minéraux abondants |
+| Roche | Gisement | Texture | Minéraux abondants / dominants |
 |---|---|---|---|
 | Granite | Plutonique | Grenue ou microgrenue, Grenue porphyrique | Quartz, Orthose, Plagioclase, Biotite |
 | Granodiorite | Plutonique | Grenue ou microgrenue, Grenue porphyrique | Quartz, Plagioclase, Biotite, Hornblende / actinote |
@@ -41,29 +39,21 @@ Porphyroblastique, Lépidoblastique, Granoblastique
 
 ## Roches métamorphiques
 
-| Roche | Départ | Type | Texture | Minéraux abondants |
-|---|---|---|---|---|
-| Quartzite | Grès | Régional, De contact | Granoblastique | Quartz |
-| Phyllade / ardoise | Shale (argilite, pélite), Grauwacke | Régional | Lépidoblastique | Muscovite, Chlorite, Quartz |
-| Micaschiste | Shale (argilite, pélite), Grauwacke | Régional | Lépidoblastique, Porphyroblastique | Muscovite, Biotite, Quartz |
-| Gneiss | Granite, Arkose, Grauwacke, Shale (argilite, pélite) | Régional | Granoblastique, Lépidoblastique | Quartz, Orthose, Plagioclase, Biotite |
-| Schiste tacheté | Shale (argilite, pélite) | De contact | Porphyroblastique, Lépidoblastique | Muscovite, Biotite, Quartz |
-| Cornéenne pélitique | Shale (argilite, pélite), Grauwacke | De contact | Granoblastique, Porphyroblastique | Quartz, Biotite, Andalousite |
-| Marbre | Calcaire | De contact, Régional | Granoblastique | Calcite |
-| Skarn (cornéenne calcique) | Calcaire, Marne | De contact | Granoblastique, Porphyroblastique | Grenat, Wollastonite, Pyroxène, Épidote, Calcite |
-| Calcschiste | Marne, Calcaire | Régional | Lépidoblastique | Calcite, Muscovite, Quartz |
-| Schiste vert | Basalte, Gabbro | Régional | Lépidoblastique | Chlorite, Épidote, Hornblende / actinote, Plagioclase |
-| Amphibolite | Basalte, Gabbro | Régional | Granoblastique, Lépidoblastique, Porphyroblastique | Hornblende / actinote, Plagioclase |
-| Schiste bleu | Basalte, Gabbro | Régional | Lépidoblastique | Glaucophane |
-| Éclogite | Gabbro, Basalte | Régional | Granoblastique, Porphyroblastique | Grenat, Pyroxène |
-| Cornéenne basique | Basalte, Gabbro | De contact | Granoblastique | Pyroxène, Plagioclase |
-
-## Minéraux de la liste
-
-Magmatique : Quartz, Orthose, Plagioclase, Biotite, Muscovite, Hornblende / actinote, Pyroxène, Olivine, Verre volcanique
-
-Métamorphique : Quartz, Orthose, Plagioclase, Biotite, Muscovite, Chlorite, Épidote, Grenat, Staurotide, Andalousite, Disthène, Cordiérite, Hornblende / actinote, Glaucophane, Pyroxène, Calcite, Wollastonite
-
-Niveaux : Absent, Accessoire (moins de 10 %), Abondant (plus de 10 %).
+| Roche | Départ probable | Métamorphisme | Texture | Orientation | Foliation | Minéraux abondants / dominants |
+|---|---|---|---|---|---|---|
+| Quartzite | Grès | Régional, De contact | Granoblastique | Non, dans tous les sens, Oui, orientés | — | Quartz |
+| Phyllade / ardoise | Shale (argilite), Grauwacke | Régional | Lépidoblastique | Oui, orientés | Schistosité | Muscovite, Chlorite, Quartz |
+| Micaschiste | Shale (argilite), Grauwacke | Régional | Lépidoblastique, Porphyroblastique | Oui, orientés | Schistosité | Muscovite, Biotite, Quartz |
+| Gneiss | Granite, Arkose, Grauwacke, Shale (argilite) | Régional | Granoblastique, Lépidoblastique | Oui, orientés | Foliation en bandes, Schistosité | Quartz, Orthose, Plagioclase, Biotite |
+| Schiste tacheté | Shale (argilite) | De contact | Porphyroblastique, Lépidoblastique | Oui, orientés, Non, dans tous les sens | Schistosité | Muscovite, Biotite, Quartz |
+| Cornéenne pélitique | Shale (argilite), Grauwacke | De contact | Granoblastique, Porphyroblastique | Non, dans tous les sens | — | Quartz, Biotite, Andalousite |
+| Marbre | Calcaire | De contact, Régional | Granoblastique | Non, dans tous les sens, Oui, orientés | — | Calcite |
+| Skarn (cornéenne calcique) | Calcaire, Marne | De contact | Granoblastique, Porphyroblastique | Non, dans tous les sens | — | Grenat, Wollastonite, Pyroxène, Épidote, Calcite |
+| Calcschiste | Marne, Calcaire | Régional | Lépidoblastique | Oui, orientés | Schistosité | Calcite, Muscovite, Quartz |
+| Schiste vert | Basalte, Gabbro | Régional | Lépidoblastique | Oui, orientés | Schistosité | Chlorite, Épidote, Hornblende / actinote, Plagioclase |
+| Amphibolite | Basalte, Gabbro | Régional | Granoblastique, Lépidoblastique, Porphyroblastique | Oui, orientés, Non, dans tous les sens | Foliation en bandes, Schistosité | Hornblende / actinote, Plagioclase |
+| Schiste bleu | Basalte, Gabbro | Régional | Lépidoblastique | Oui, orientés | Schistosité | Glaucophane |
+| Éclogite | Gabbro, Basalte | Régional | Granoblastique, Porphyroblastique | Non, dans tous les sens, Oui, orientés | Foliation en bandes | Grenat, Pyroxène |
+| Cornéenne basique | Basalte, Gabbro | De contact | Granoblastique | Non, dans tous les sens | — | Pyroxène, Plagioclase |
 
 Valeurs simplifiées : à vérifier avec votre cours.

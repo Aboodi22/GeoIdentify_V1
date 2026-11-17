@@ -7,19 +7,31 @@
     <p class="tag">{{ rd.FAMILY_LABEL[r.family] }}</p>
     <p class="lead">{{ r.description }}</p>
 
+    {% set tf = 'mtex' if r.family == 'mag' else 'ttex' %}
+    <section class="panel">
+        <h2>À quoi ressemble sa texture</h2>
+        <div class="tex-row">
+            {% for v in (r.profile.mtex if r.family == 'mag' else r.profile.ttex) %}{% set im = rd.option_img(tf, v) %}{% if im %}
+            <figure><img src="{{ url_for('static', filename=im) }}" alt="{{ rd.option_label(tf, v) }}" width="120" height="120"><figcaption>{{ rd.option_label(tf, v) }}</figcaption></figure>
+            {% endif %}{% endfor %}
+        </div>
+    </section>
+
     <section class="panel">
         <h2>Critères d'identification</h2>
         <table class="props">
             {% set p = r.profile %}
             {% if r.family == 'mag' %}
-            <tr><th>Gisement</th><td>{% for v in p.setting %}{{ rd.option_label('setting', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
             <tr><th>Texture</th><td>{% for v in p.mtex %}{{ rd.option_label('mtex', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            <tr><th>Gisement</th><td>{% for v in p.setting %}{{ rd.option_label('setting', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
             {% if p.fdom %}<tr><th>Feldspath dominant</th><td>{% for v in p.fdom %}{{ rd.option_label('fdom', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>{% endif %}
             {% else %}
-            <tr><th>Nature chimique de départ</th><td>{% for v in p.chem %}{{ rd.option_label('chem', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
-            <tr><th>Roche de départ</th><td>{% for v in p.proto %}{{ rd.option_label('proto', v) }}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>
-            <tr><th>Métamorphisme</th><td>{% for v in p.mtype %}{{ rd.option_label('mtype', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
             <tr><th>Texture</th><td>{% for v in p.ttex %}{{ rd.option_label('ttex', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            <tr><th>Orientation des cristaux</th><td>{% for v in p.orient %}{{ rd.option_label('orient', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            {% if p.foliation %}<tr><th>Foliation</th><td>{% for v in p.foliation %}{{ rd.option_label('foliation', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>{% endif %}
+            <tr><th>Roche de départ probable</th><td>{% for v in p.proto %}{{ rd.option_label('proto', v) }}{% if not loop.last %}, {% endif %}{% endfor %}</td></tr>
+            <tr><th>Nature chimique de départ</th><td>{% for v in p.chem %}{{ rd.option_label('chem', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
+            <tr><th>Métamorphisme</th><td>{% for v in p.mtype %}{{ rd.option_label('mtype', v) }}{% if not loop.last %} ou {% endif %}{% endfor %}</td></tr>
             {% endif %}
         </table>
     </section>

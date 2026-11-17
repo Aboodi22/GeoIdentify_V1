@@ -10,7 +10,7 @@
         <form action="{{ url_for('rlame_question') }}" method="post">
             <input type="hidden" name="field" value="minerals">
             <h2 class="thin-title">Quels minéraux voyez-vous, et en quelle quantité ?</h2>
-            <p class="help">Abondant : plus de 10 % de la lame. Accessoire : moins de 10 %. Laissez « Absent » pour les minéraux que vous ne voyez pas.</p>
+            <p class="help">Dominant : le ou les minéraux principaux. Abondant : plus de 10 % de la lame. Accessoire : moins de 10 %. Laissez « Absent » pour ceux que vous ne voyez pas.</p>
             <div class="min-list">
                 {% for key, name, hint in minerals %}
                 <div class="min-row">
@@ -24,6 +24,7 @@
                 {% endfor %}
             </div>
             <button class="btn primary" type="submit" style="margin-top:16px;">Voir le résultat</button>
+            <p class="help" style="margin-top:10px;">Un minéral à reconnaître ? <a href="{{ url_for('thin_form') }}">Identifiez-le d'abord en lame mince</a> (les réponses de cette page seront perdues).</p>
         </form>
         {% if can_back %}
         <form action="{{ url_for('rlame_back') }}" method="post" class="wizard-nav"><button type="submit" class="btn ghost">Étape précédente</button></form>
