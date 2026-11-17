@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-<rect width="64" height="64" rx="14" fill="#f7f8f5"/>
-<polygon points="32,6 54,20 54,46 32,58 10,46 10,20" fill="#0d6f57"/>
-<polygon points="32,6 54,20 32,32 10,20" fill="#7fcfb5"/>
-<polygon points="32,32 54,20 54,46 32,58" fill="#0a5945"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72"><circle cx="36" cy="36" r="34" fill="#0d1520"/><clipPath id="k"><circle cx="36" cy="36" r="31"/></clipPath><g clip-path="url(#k)"><polygon points="36,6 54,12 52,30 34,34 22,20" fill="#f2a65a" stroke="#0d1520" stroke-width="1.2"/><polygon points="54,12 68,28 62,44 52,30" fill="#7bd3c3" stroke="#0d1520" stroke-width="1.2"/><polygon points="52,30 62,44 56,62 40,56 34,34" fill="#f26d8d" stroke="#0d1520" stroke-width="1.2"/><polygon points="34,34 40,56 20,62 8,46 14,30" fill="#f7e07a" stroke="#0d1520" stroke-width="1.2"/><polygon points="22,20 34,34 14,30 10,16" fill="#8f7bf0" stroke="#0d1520" stroke-width="1.2"/><polygon points="14,30 8,46 4,36 8,24" fill="#5fb4f2" stroke="#0d1520" stroke-width="1.2"/><polygon points="40,56 56,62 44,68 30,68 20,62" fill="#a8e063" stroke="#0d1520" stroke-width="1.2"/></g><circle cx="36" cy="36" r="31" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/></svg>
