@@ -11,7 +11,7 @@ Application web éducative (Flask, déployable sur Vercel) pour identifier des *
 | Une lame mince (minéral) | `/thin/identify` | 12 minéraux ou groupes : questions LPNA puis LPA, résultat en % |
 | Une roche en lame mince | `/rlame/identify` | 29 roches magmatiques et métamorphiques, avec schémas |
 
-Une barre de recherche (haut de page) tolère les fautes d'orthographe et propose des suggestions.
+L'accueil propose 4 grandes cartes : **Minéraux** et **Roches** (sur échantillon), **Lames minces** et **Roches en lame** (en lame mince). Une barre de recherche (haut de page) tolère les fautes d'orthographe et propose des suggestions.
 
 ## Comment ça marche
 
@@ -49,10 +49,13 @@ Pour mettre à jour un dépôt existant, ne poussez que les fichiers modifiés (
 | `thin_data.py`, `thin_engine.py` | Base et moteur « minéral en lame mince » |
 | `rlame_data.py`, `rlame_engine.py` | Base et moteur « roche en lame mince » |
 | `templates/` | Pages HTML (Jinja2) ; `rlame-*` et `thin-*` pour les lames minces |
-| `static/css/style.css` | Thème noir, bleu et blanc |
+| `static/css/style.css` | Thème noir, bleu et blanc, grille de 8 px |
+| `static/js/scroll.js` | Défilement doux et pied de page « rideau » |
+| `static/js/lenis.min.js`, `static/css/lenis.css` | Bibliothèque Lenis (licence MIT) pour le défilement doux |
 | `static/favicon.svg` | Icône de l'onglet (logo coloré) |
+| `static/img/hero-lame.svg` | Lame mince de l'accueil (générée par `tools/make_hero.py`) |
 | `static/img/rlame/` | 17 schémas (textures, orientation, gisements) |
-| `tools/make_drawings.py` | Régénère les schémas (numpy et scipy requis, facultatif) |
+| `tools/make_drawings.py`, `tools/make_hero.py` | Régénèrent les schémas et la lame d'accueil (numpy et scipy requis, facultatif) |
 | `docs/` | Listes des minéraux et des roches en lame mince, et fichiers du logo |
 
 ## Moteur de score (lames minces)
